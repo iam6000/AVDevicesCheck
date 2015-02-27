@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+    
+     <TextView
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="选择测试种类并测试设备" />
+
+    <Button
+        android:id="@+id/AndroidAV"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Android音视频设备测试" >
+    </Button>
+
+    <Button
+        android:id="@+id/LinuxAV"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="linux层音视频设备测试" >
+    </Button>
+
+   <TextView
+       android:id="@+id/textView1"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:text="音频设备视频设备独立测试" >
+
+    </TextView>
+    <Button
+        android:id="@+id/AndroidVideo"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Android Camera 设备测试" >
+    </Button>
+    
+    <Button
+        android:id="@+id/AndroidAudio"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Android Microphone 设备测试" >
+    </Button>
+    
+    <Button
+        android:id="@+id/linuxV4l2"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Linux V4L2 Camera 设备测试" >
+    </Button>
+    
+    <Button
+        android:id="@+id/linuxAlsa"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:text="Linux Alsa Audio 设备测试" >
+    </Button>
+
+
+   
+    
+
+</LinearLayout>
