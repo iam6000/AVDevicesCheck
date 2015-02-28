@@ -11,8 +11,15 @@ import android.widget.Button;
 
 public class manualActivity extends Activity {
 	
+	private Button bt_AndroidAVTest; 
+	private Button bt_LinuxAVTest ; 
+	
 	private Button bt_AndroidAudio ; 
+	private Button bt_AndroidVideo ; 
+	
+	private Button bt_v4l2Video ; 
 	private Button bt_AlsaAudio ; 
+	
 	
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -25,16 +32,54 @@ public class manualActivity extends Activity {
 	}
 	
 	private void initUIButton()
-	{
+	{	
+		bt_AndroidAVTest = (Button)findViewById(R.id.AndroidAV);
+		bt_LinuxAVTest = (Button)findViewById(R.id.LinuxAV);
+		
+		bt_AndroidVideo = (Button)findViewById(R.id.AndroidVideo);
 		bt_AndroidAudio = (Button)findViewById(R.id.AndroidAudio);
+		
 		bt_AlsaAudio = (Button)findViewById(R.id.linuxAlsa);
+		bt_v4l2Video = (Button)findViewById(R.id.linuxV4l2);
+		
 	}
 	
 	// Õë¶Ô¸÷¸öÄ£¿é£¬ÊÇ·ñÌ«¹ýÓÚÂé·³ÁË
 	private void ManualViewListener()
 	{
+		// ¼àÌýAndoridAV 
+		bt_AndroidAVTest.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				
+			} 
+		}); 
 		
-		// ¼àÌý¶¯×÷
+		
+		//¼àÌý Linux²ãAV
+		bt_LinuxAVTest.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		// ¼àÌý android Video
+		bt_AndroidVideo.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		}); 		
+		
+		
+		// ¼àÌýAndoridAudio
 		bt_AndroidAudio.setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View arg0) {
@@ -52,7 +97,18 @@ public class manualActivity extends Activity {
 			}
 		});
 		
-		//¼àÌý¶¯×÷
+		//¼àÌý v4l2 button
+		bt_v4l2Video.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+		});
+		
+		
+		//¼àÌýAlsaAudio
 		bt_AlsaAudio.setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View arg0) {

@@ -18,7 +18,7 @@ public class AndroidAudio extends AudioDevice {
 	AudioRecord audioRecord ; 
 	// 播放用 audioTrack
 	AudioTrack audioTrack ; 
-	boolean doRecordAndPlay = true ; // 由Button 触发更改为false
+	//boolean doRecordAndPlay = true ; // 由Button 触发更改为false
 	
 	
 	public void start()
@@ -49,6 +49,8 @@ public class AndroidAudio extends AudioDevice {
 		{
 			doRecordAndPlay = false ;
 		}
+		
+		android.os.Process.killProcess(android.os.Process.myPid());
 	}
 	
 	

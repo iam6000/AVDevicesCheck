@@ -1,6 +1,7 @@
 package com.example.devicechecker;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.content.Intent;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -8,6 +9,7 @@ import android.media.AudioRecord;
 import android.media.AudioTrack;
 import android.media.MediaRecorder;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
@@ -41,10 +43,10 @@ public class AudioActivity extends Activity {
 		}	
 		else if(value.equals("tinyalsa"))
 		{
-		   //	audio = new AlsaAudio();
+			System.out.println("new TinyAlsaAudio 1111!!!!!!!!!!!!!!!!");	
+		    audio = new TinyAlsaAudio(AudioActivity.this);	// 传递 content 到tinyalsa的类		
 		}
 	   
-		
 		
 		audio.start();
 		// 监听 按键信息，记录按键 并且 调用audio.stop			
