@@ -44,9 +44,9 @@
 #define __force
 #define __bitwise
 #define __user
-#include "asound.h"
+#include "include/asound.h"
 
-#include "asoundlib.h"
+#include "include/asoundlib.h"
 
 #define PARAM_MAX SNDRV_PCM_HW_PARAM_LAST_INTERVAL
 #define SNDRV_PCM_HW_PARAMS_NO_PERIOD_WAKEUP (1<<2)

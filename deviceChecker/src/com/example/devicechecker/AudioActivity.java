@@ -75,7 +75,7 @@ public class AudioActivity extends Activity {
 				// TODO Auto-generated method stub
 				System.out.println("Audio is UseNotAble");
 				isAudioUseAble = false ; 
-				audio.stop();
+				audio.stop();			
 				// 跳转回原activity 并结束当前activity
 				Intent intent = new Intent();
 				intent.setClass(AudioActivity.this,manualActivity.class);

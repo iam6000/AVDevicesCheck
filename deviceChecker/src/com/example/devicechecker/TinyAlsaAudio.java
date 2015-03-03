@@ -35,6 +35,8 @@ public class TinyAlsaAudio extends AudioDevice {
 	static boolean doDevicesScan = true ; 
 	static boolean isPlaying = true ;
 	String CaptureDevice = null; 
+	
+	DeviceErrorMsg mDeviceMsg  = new DeviceErrorMsg(); 
 	//String PlayDevice = null; 
 	Context mContext;
 	private  AudioTrack mAudioTrack; 
@@ -46,11 +48,16 @@ public class TinyAlsaAudio extends AudioDevice {
 	
 	List<String> lastScanResult = new ArrayList<String>();
 	List<String> curScanResult  = new ArrayList<String>();
-	List<String> targetScanResult = new ArrayList<String>() ;
+	List<String> targetScanResult = new ArrayList<String>();
 	
 	//declare JNI native methods
-	public native int startAudioRecord(int cardID, int deviceID );	
-	public native int stopAudioRecord();	
+	public native DeviceErrorMsg checkDeviceAvailable(int CardID, int deviceID);
+	public native void startAudioRecord(int cardID, int deviceID );	
+	public native void stopAudioRecord();	
+	
+	static {
+	      System.loadLibrary("TinyAlsaDevice");
+	}
 	
 	public TinyAlsaAudio(Context context)
 	{
@@ -220,9 +227,78 @@ public class TinyAlsaAudio extends AudioDevice {
 		{
 			isPlaying = false ;
 		}
-		mAudioTrack.stop();
-		mAudioTrack.release();
-		mAudioTrack = null ;
+		if(mAudioTrack != null)
+		{
+			mAudioTrack.stop();
+			mAudioTrack.release();
+			mAudioTrack = null ;
+		}		
+	}
+	
+	/*!
+	 *   检测设备检测结果，并使用native方法打开设备并录音
+	 */
+	private void startRecordAndPlay()
+	{			
+		// 检测到设备
+		if(CaptureDevice != null){	
+			System.out.println("CheckDevices Success" );	
+			System.out.println("CheckDevices Success,get Pcm devices" + CaptureDevice );			
+			// 播放需要使用android层播放，因为，播放pcm设备被android系统长期占用			
+			parsePCMID();		
+			
+			// 先检测 设备权限，若没权限 直接返回 
+			
+			mDeviceMsg  = checkDeviceAvailable(CardId,DeviceId);
+			if(mDeviceMsg.isErrorHappen())
+			{
+				// do Error 处理 并且return  
+				AlertDialog.Builder availableBuilder = new AlertDialog.Builder(mContext);				
+				availableBuilder.setTitle("音频采集设备错误");
+				availableBuilder.setMessage(mDeviceMsg.ErrorMsg);
+				availableBuilder.setNegativeButton("返回", null);
+				availableBuilder.create().show();
+				
+			}
+			else 
+			{		
+				// 开启一个线程 startRecord() ,使用tinyalsa 设备 采集
+				new alsaAudioThread().start();			
+				AlertDialog.Builder recordBuilder = new AlertDialog.Builder(mContext);
+				recordBuilder.setTitle("检测到设备开始录音");
+				recordBuilder.setMessage("已检测到pcm设备"+ CaptureDevice + "\n 请对着mic说话，开始录音\n");
+				recordBuilder.setCancelable(false);
+				recordBuilder.setPositiveButton("录音结束，播放录音",new OnClickListener() {
+					
+					@Override
+					public void onClick(DialogInterface arg0, int arg1) {
+						// TODO Auto-generated method stub
+						// 1,先停掉Record线程
+						stopAudioRecord();
+						// 调用androidTrack播放声音		
+						try {						
+							startAudioPlay();
+						}catch (Exception e){
+							 e.printStackTrace();  
+						}
+						new playThread().start();
+					}
+				});		
+				
+				recordBuilder.create().show();		
+				
+			}			
+
+		}
+		else 
+		{
+			System.out.println("CheckDevices failed" );	
+			AlertDialog.Builder noPcmDevicesBuilder = new AlertDialog.Builder(mContext);
+			noPcmDevicesBuilder.setTitle("无法检测到mic设备");
+			noPcmDevicesBuilder.setMessage("无法检测到mic输入设备");
+			noPcmDevicesBuilder.setNegativeButton("返回", null);
+			noPcmDevicesBuilder.create().show();
+		}		
 	}
 	
 	/*!
@@ -248,44 +324,12 @@ public class TinyAlsaAudio extends AudioDevice {
 				// TODO Auto-generated method stub								
 				// stop The Scan thread 
 				doDevicesScan = false ; 
-				System.out.println("Devices Operated Success" );					
-			
+				System.out.println("Devices Operated Success" );
+				startRecordAndPlay();									
 			}
-		});
+		});		
+		builder.create().show();			
 		
-		builder.create().show();
-				
-		// 检测到设备
-		if(CaptureDevice != null){		
-			System.out.println("CheckDevices Success,get Pcm devices" + CaptureDevice );			
-			// 播放需要使用android层播放，因为，播放pcm设备被android系统长期占用			
-			parsePCMID();
-			// 开启一个线程 startRecord() ,使用tinyalsa 设备 采集
-			new alsaAudioThread().start();
-			
-			AlertDialog.Builder recordBuilder = new AlertDialog.Builder(mContext);
-			recordBuilder.setTitle("检测到设备开始录音");
-			recordBuilder.setMessage("已检测到pcm设备"+ CaptureDevice + "\n 请对着mic说话，开始录音\n");
-			recordBuilder.setCancelable(false);
-			recordBuilder.setPositiveButton("录音结束，播放录音",new OnClickListener() {
-				
-				@Override
-				public void onClick(DialogInterface arg0, int arg1) {
-					// TODO Auto-generated method stub
-					// 1,先停掉Record线程
-					stopAudioRecord();
-					// 调用androidTrack播放声音		
-					try {						
-						startAudioPlay();
-					}catch (Exception e){
-						 e.printStackTrace();  
-					}
-					new playThread().start();
-				}
-			});
-			
-			
-		}		
 		
 	}
 	
@@ -302,7 +346,7 @@ public class TinyAlsaAudio extends AudioDevice {
 		android.os.Process.killProcess(android.os.Process.myPid());
 		
 	}
-	
+		
 	/*!
 	 *  do devices scan 
 	 *	起一个线程一直扫描 path内的设备，扫描模块 后期独立成class 同时供video使用
@@ -334,7 +378,7 @@ public class TinyAlsaAudio extends AudioDevice {
 			public void run() {
 				try{
 					//启动 alsaAudio线程 调用JNI func
-					startAudioRecord(CardId,DeviceId);
+					startAudioRecord(CardId,DeviceId);						
 				}catch(Throwable t){
 					Toast.makeText(mContext, t.getMessage(), 1000);
 				}

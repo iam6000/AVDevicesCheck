@@ -7,7 +7,7 @@
 #include <stdint.h>
 #include <signal.h>
 #include <string.h>
-#include "tinyalsa/asoundlib.h"
+#include "asoundlib.h"
 
 
 #define  LOG_TAG    "TinyAlsaNative"
@@ -43,11 +43,14 @@ struct wav_header {
  * brief  start AudioRecord
  * param s pcmdevices
  */
-void startAudioRecord(int card , int devices);
+
 
 //Jni func
-Java_com_example_devicechecker_TinyAlsaAudio_startAudioRecord(JNIEnv* env,jobject thiz, jint cardID, jint deviceID);
+void Java_com_example_devicechecker_TinyAlsaAudio_startAudioRecord(JNIEnv* env,jobject thiz, jint cardID, jint deviceID);
 
 
-Java_com_example_devicechecker_TinyAlsaAudio_startAudioRecord(JNIEnv* env,jobject thiz);
+void Java_com_example_devicechecker_TinyAlsaAudio_stopAudioRecord(JNIEnv* env,jobject thiz);
+
+
+Jobject Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable(JNIEnv* env,jobject thiz, jint cardID, jint deviceID);
 

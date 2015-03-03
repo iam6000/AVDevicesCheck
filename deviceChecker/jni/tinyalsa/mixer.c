@@ -40,9 +40,9 @@
 #define __force
 #define __bitwise
 #define __user
-#include "asound.h"
+#include "include/asound.h"
 
-#include "asoundlib.h"
+#include "include/asoundlib.h"
 
 struct mixer_ctl {
     struct mixer *mixer;
