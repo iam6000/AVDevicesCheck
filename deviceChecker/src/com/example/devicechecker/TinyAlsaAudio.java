@@ -24,8 +24,7 @@ import android.view.View;
 import android.widget.Toast;
 
 @SuppressLint("ShowToast")
-public class TinyAlsaAudio extends AudioDevice {
-	
+public class TinyAlsaAudio extends AudioDevice {	
 	
 	static int CardId = -1 ; 
 	static int DeviceId = -1 ; 	
@@ -253,6 +252,8 @@ public class TinyAlsaAudio extends AudioDevice {
 			if(mDeviceMsg.isErrorHappen())
 			{
 				// do Error 处理 并且return  
+				System.out.println("get Error result :" + mDeviceMsg.result );	
+				System.out.println("get Error MSG :" + mDeviceMsg.ErrorMsg );	
 				AlertDialog.Builder availableBuilder = new AlertDialog.Builder(mContext);				
 				availableBuilder.setTitle("音频采集设备错误");
 				availableBuilder.setMessage(mDeviceMsg.ErrorMsg);

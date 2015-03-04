@@ -68,8 +68,7 @@ public class AudioActivity extends Activity {
 		});
 		
 		
-		audioIsNotOK.setOnClickListener(new OnClickListener() {
-			
+		audioIsNotOK.setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
