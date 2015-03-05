@@ -8,7 +8,9 @@ static int capturing = 1;
 FILE* fcapture = NULL ;
 //uint8_t errorMSG[MAX_ERROR_LENGTH]  ;
 //static int deviceIsOk = 0 ;
-static jclass myClass;
+static int deviceIsOk = 0 ;
+uint8_t errorMSG[MAX_ERROR_LENGTH]  ;
+
 
 typedef union
 {
@@ -194,45 +196,41 @@ jobject Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable(JNIEnv
 	LOGE("Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable\n");
 	//  test begin
 	static jclass gDeviceErrorMsgClass = NULL;
-	if (stringClass == NULL) {
-		 //创建一个局部引用
-		 jclass localRefCls=(*env)->FindClass(env, "com/example/devicechecker/DeviceErrorMsg");
-		if (localRefCls == NULL) {
-			return NULL; /* exception thrown */
-		}
-		 /* 创建一个全局引用 */
-		gDeviceErrorMsgClass = (*env)->NewGlobalRef(env, localRefCls);
-		 /* 局部引用localRefCls不再有效，删除局部引用localRefCls*/
-		(*env)->DeleteLocalRef(env, localRefCls);
-		if (DeviceErrorMsgClass == NULL) {
-			return NULL; /* out of memory exception thrown */
-		 }
+	 //创建一个局部引用
+	LOGE("AAA\n");
+	 jclass localRefCls=(*env)->FindClass(env, "com/example/devicechecker/DeviceErrorMsg");
+	if (localRefCls == NULL) {
+		return NULL; /* exception thrown */
+	}
+	LOGE("BBB\n");
+	 /* 创建一个全局引用 */
+	gDeviceErrorMsgClass = (*env)->NewGlobalRef(env, localRefCls);
+	 /* 局部引用localRefCls不再有效，删除局部引用localRefCls*/
+	(*env)->DeleteLocalRef(env, localRefCls);
+	LOGE("CCC\n");
+	if (gDeviceErrorMsgClass == NULL) {
+		return NULL; /* out of memory exception thrown */
 	 }
 	//--- test end
-
-	uint8_t errorMSG[MAX_ERROR_LENGTH]  ;
 	memset(errorMSG, 0,MAX_ERROR_LENGTH*sizeof(char));
 	LOGE("Before check Devices\n");
-	static int deviceIsOk = 0 ;
+
 	deviceIsOk = devicesIsAvailable(cardID, deviceID,errorMSG);
 	LOGE("Get Result is %d",deviceIsOk);
 	LOGE("Get MSG %s",errorMSG);
-	if(!deviceIsOk)
+	if(deviceIsOk == -1)
 	{
 		LOGE("Device is not OK\n");
 		// 找到对应的java MSG类
-		//jclass class_DateRange = (*env)->FindClass(env,"com/example/devicechecker/DeviceErrorMsg");
 
-		LOGE("1111\n");
 		if (gDeviceErrorMsgClass == NULL) {
-
 			LOGE("java/lang/RuntimeException Can't find class CaAccountNoInfo");
 			return NULL;
 		}
-		LOGE("2222\n");
+
 		// 实例化一个对应的类
 		jobject object_datarange = (*env)->AllocObject(env,gDeviceErrorMsgClass);
-		//jobject object_datarange = (*env)->AllocObject(env,myClass);
+
 		if (NULL == object_datarange) {
 			LOGE("java/lang/RuntimeException Can't find object is NULL");
 			// 释放掉全局引用
@@ -240,24 +238,21 @@ jobject Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable(JNIEnv
 			return NULL;
 		}
 
-		LOGE("3333\n");
+
 		jfieldID jfieldid_result = (*env)->GetFieldID(env,gDeviceErrorMsgClass,
 					"result", "I");
 
-		LOGE("4444\n");
-		jfieldID jfieldid_ErrorMsg = (*env)->GetFieldID(env,gDeviceErrorMsgClass,
+		jfieldID lErrorMsgClass = (*env)->GetFieldID(env,gDeviceErrorMsgClass,
 						"ErrorMsg" , "Ljava/lang/String;");
 
+		if (lErrorMsgClass == NULL) {
+			return NULL;
+		}
 		// 赋值
-		LOGE("5555\n");
 		(*env)->SetIntField(env,object_datarange, jfieldid_result, deviceIsOk);
-
-		LOGE("6666\n");
-		jstring errorMSG = (*env)->NewStringUTF(env,(const char*) errorMSG);
-		LOGE("7777\n");
-		(*env)->SetObjectField(env,object_datarange, jfieldid_ErrorMsg,
-				errorMSG);
-		LOGE("8888\n");
+		jstring jErrorMSG = (*env)->NewStringUTF(env,(const char*) errorMSG);
+		(*env)->SetObjectField(env,object_datarange, lErrorMsgClass,
+				jErrorMSG);
 		// 释放掉全局引用  may be error delete ref before return object ,just try it
 		(*env)->DeleteGlobalRef(env,gDeviceErrorMsgClass);
 		return object_datarange;

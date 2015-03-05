@@ -23,5 +23,10 @@ public class DeviceErrorMsg {
 			return true ;
 		}
 	}
-
+	
+	public String getErrorMSG()
+	{			
+			return this.ErrorMsg ;
+	}
+		
 }
