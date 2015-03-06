@@ -16,7 +16,7 @@ LOCAL_PATH := $(call my-dir)
 
 include $(CLEAR_VARS)
 
-LOCAL_MODULE    := v4l2VideoDevice
+LOCAL_MODULE    := v4l2Device
 LOCAL_SRC_FILES := ImageProc.c
 LOCAL_LDLIBS    := -llog -ljnigraphics
 

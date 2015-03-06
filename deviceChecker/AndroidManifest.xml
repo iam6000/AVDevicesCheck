@@ -33,7 +33,10 @@
         </activity>
         <activity 
             android:name = "com.example.devicechecker.AudioActivity" >
-        </activity>       
+        </activity>      
+        <activity 
+            android:name = "com.example.devicechecker.PreviewActivity" >
+        </activity>    
     </application>
 
 </manifest>

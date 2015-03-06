@@ -1,6 +1,8 @@
 package com.example.devicechecker;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
@@ -19,6 +21,7 @@ public class V4l2Preview extends SurfaceView implements SurfaceHolder.Callback, 
 
 	private boolean cameraExists=false;
 	private boolean shouldStop=false;
+	private DeviceErrorMsg  mDeviceMsg  = new DeviceErrorMsg(); 	
 	
 	/// /dev/videox (x=cameraId+cameraBase) is used.
 	// In some omap devices, system uses /dev/video[0-3],
@@ -41,14 +44,14 @@ public class V4l2Preview extends SurfaceView implements SurfaceHolder.Callback, 
     private float rate;
   
     // JNI functions
-    public native int prepareCamera(int videoid);
-    public native int prepareCameraWithBase(int videoid, int camerabase);
+    public native DeviceErrorMsg prepareCamera(int videoid);
+    public native DeviceErrorMsg prepareCameraWithBase(int videoid, int camerabase);
     public native void processCamera();
     public native void stopCamera();
 
 	public native void pixeltobmp(Bitmap bitmap);
     static {
-        System.loadLibrary("ImageProc");
+        System.loadLibrary("v4l2Device");
     }
     
 	V4l2Preview(Context context) {
@@ -111,17 +114,36 @@ public class V4l2Preview extends SurfaceView implements SurfaceHolder.Callback, 
 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
+		System.out.println("new V4l2Preview surfaceCreated!!!");
 		if(DEBUG) Log.d("WebCam", "surfaceCreated");
 		if(bmp==null){
 			bmp = Bitmap.createBitmap(IMG_WIDTH, IMG_HEIGHT, Bitmap.Config.ARGB_8888);
 		}
 		// /dev/videox (x=cameraId + cameraBase) is used
-		int ret = prepareCameraWithBase(cameraId, cameraBase);
+		mDeviceMsg.DeviceType = "v4l2Device";
+		mDeviceMsg = prepareCameraWithBase(cameraId, cameraBase);
 		
-		if(ret!=-1) cameraExists = true;
+		if(mDeviceMsg.result!=-1) cameraExists = true;
+		if(mDeviceMsg.isErrorHappen())
+		{
+			// show Error
+			// do Error 处理 并且return  
+			System.out.println("get Error result :" + mDeviceMsg.result );	
+			System.out.println("get Error MSG :" + mDeviceMsg.ErrorMsg );	
+			AlertDialog.Builder availableBuilder = new AlertDialog.Builder(this.context);				
+			availableBuilder.setTitle("音频采集设备错误");
+			availableBuilder.setMessage(mDeviceMsg.ErrorMsg);
+			availableBuilder.setNegativeButton("返回", null);
+			availableBuilder.create().show();	
+			surfaceDestroyed(this.holder);
+		}
+		else 
+		{
+			  mainLoop = new Thread(this);
+		      mainLoop.start();	
+		}
 		
-        mainLoop = new Thread(this);
-        mainLoop.start();		
+      	
 	}
 	
 	@Override
@@ -141,6 +163,7 @@ public class V4l2Preview extends SurfaceView implements SurfaceHolder.Callback, 
 			}
 		}
 		stopCamera();
+		//super.onDestroy();
 	}  
 
 }

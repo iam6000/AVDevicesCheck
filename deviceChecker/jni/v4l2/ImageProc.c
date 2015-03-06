@@ -17,7 +17,7 @@ int xioctl(int fd, int request, void *arg)
 	return r;
 }
 
-//检查video设备名称
+//妫�煡video璁惧鍚嶇О
 int checkCamerabase(void){
 	struct stat st;
 	int i;
@@ -39,20 +39,22 @@ int checkCamerabase(void){
 		return 0;
 	}
 }
-//打开video设备
-int opendevice(int i)
+//鎵撳紑video璁惧
+int opendevice(int i,char* errorMSG)
 {
 	struct stat st;
 
 	sprintf(dev_name,"/dev/video%d",i);
-	//stat() 获得文件属性，并判断是否为字符设备文件
+	//stat() 鑾峰緱鏂囦欢灞炴�锛屽苟鍒ゆ柇鏄惁涓哄瓧绗﹁澶囨枃浠�
 	if (-1 == stat (dev_name, &st)) {
 		LOGE("Cannot identify '%s': %d, %s", dev_name, errno, strerror (errno));
+		strcpy(errorMSG,strerror (errno));
 		return ERROR_LOCAL;
 	}
 
 	if (!S_ISCHR (st.st_mode)) {
 		LOGE("%s is no device", dev_name);
+		strcpy(errorMSG,strerror (errno));
 		return ERROR_LOCAL;
 	}
 
@@ -60,40 +62,53 @@ int opendevice(int i)
 
 	if (-1 == fd) {
 		LOGE("Cannot open '%s': %d, %s", dev_name, errno, strerror (errno));
+		strcpy(errorMSG,strerror (errno));
 		return ERROR_LOCAL;
 	}
 	return SUCCESS_LOCAL;
 }
-//初始化设备
-int initdevice(void) 
+//鍒濆鍖栬澶�
+int initdevice(char* errorMSG)
 {
 	struct v4l2_capability cap;
 	struct v4l2_cropcap cropcap;
 	struct v4l2_crop crop;
 	struct v4l2_format fmt;
 	unsigned int min;
-	//VIDIOC_QUERYCAP 命令 来获得当前设备的各个属性
+	//VIDIOC_QUERYCAP 鍛戒护 鏉ヨ幏寰楀綋鍓嶈澶囩殑鍚勪釜灞炴�
 	if (-1 == xioctl (fd, VIDIOC_QUERYCAP, &cap)) {
 		if (EINVAL == errno) {
 			LOGE("%s is no V4L2 device", dev_name);
+			char msg[80];
+			sprintf(msg,"%s is no V4L2 device", dev_name);
+			strcpy(errorMSG,msg);
 			return ERROR_LOCAL;
 		} else {
+			char msg[80];
+			sprintf(msg,"%s VIDIOC_QUERYCAP", dev_name);
+			strcpy(errorMSG,msg);
 			return errnoexit ("VIDIOC_QUERYCAP");
 		}
 	}
 	//V4L2_CAP_VIDEO_CAPTURE 0x00000001
-	// 这个设备支持 video capture 的接口，即这个设备具备 video capture 的功能
+	// 杩欎釜璁惧鏀寔 video capture 鐨勬帴鍙ｏ紝鍗宠繖涓澶囧叿澶�video capture 鐨勫姛鑳�
 	if (!(cap.capabilities & V4L2_CAP_VIDEO_CAPTURE)) {
+		char msg[80];
+		sprintf("%s is no video capture device", dev_name);
+		strcpy(errorMSG,msg);
 		LOGE("%s is no video capture device", dev_name);
 		return ERROR_LOCAL;
 	}
 	//V4L2_CAP_STREAMING 0x04000000
-	// 这个设备是否支持 streaming I/O 操作函数
+	// 杩欎釜璁惧鏄惁鏀寔 streaming I/O 鎿嶄綔鍑芥暟
 	if (!(cap.capabilities & V4L2_CAP_STREAMING)) {
+		char msg[80];
+		sprintf("%s does not support streaming i/o", dev_name);
+		strcpy(errorMSG,msg);
 		LOGE("%s does not support streaming i/o", dev_name);
 		return ERROR_LOCAL;
 	}
-	//获得设备对 Image Cropping 和 Scaling 的支持
+	//鑾峰緱璁惧瀵�Image Cropping 鍜�Scaling 鐨勬敮鎸�
 	CLEAR (cropcap);
 
 	cropcap.type = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -112,7 +127,7 @@ int initdevice(void)
 		}
 	} else {
 	}
-	//设置图形格式
+	//璁剧疆鍥惧舰鏍煎紡
 	CLEAR (fmt);
 
 	fmt.type                = V4L2_BUF_TYPE_VIDEO_CAPTURE;
@@ -122,12 +137,12 @@ int initdevice(void)
 
 	fmt.fmt.pix.pixelformat = V4L2_PIX_FMT_YUYV;
 	fmt.fmt.pix.field       = V4L2_FIELD_INTERLACED;
-	//检查流权限
+	//妫�煡娴佹潈闄�
 	if (-1 == xioctl (fd, VIDIOC_S_FMT, &fmt))
 		return errnoexit ("VIDIOC_S_FMT");
 
 	min = fmt.fmt.pix.width * 2;
-	//每行像素所占的 byte 数
+	//姣忚鍍忕礌鎵�崰鐨�byte 鏁�
 	if (fmt.fmt.pix.bytesperline < min)
 		fmt.fmt.pix.bytesperline = min;
 	min = fmt.fmt.pix.bytesperline * fmt.fmt.pix.height;
@@ -137,7 +152,7 @@ int initdevice(void)
 	return initmmap ();
 
 }
-//I/O模式选择
+//I/O妯″紡閫夋嫨
 int initmmap(void)
 {
 	struct v4l2_requestbuffers req;
@@ -320,7 +335,7 @@ int uninitdevice(void)
 
 	return SUCCESS_LOCAL;
 }
-//关闭设备
+//鍏抽棴璁惧
 int closedevice(void)
 {
 	if (-1 == close (fd)){
@@ -406,7 +421,7 @@ void yuyv422toABGRY(unsigned char *src)
 
 
 void 
-Java_com_camera_simplewebcam_CameraPreview_pixeltobmp( JNIEnv* env,jobject thiz,jobject bitmap){
+Java_com_example_devicechecker_V4l2Preview_pixeltobmp( JNIEnv* env,jobject thiz,jobject bitmap){
 
 	jboolean bo;
 
@@ -451,19 +466,40 @@ Java_com_camera_simplewebcam_CameraPreview_pixeltobmp( JNIEnv* env,jobject thiz,
 
 }
 
-jint 
-Java_com_camera_simplewebcam_CameraPreview_prepareCamera( JNIEnv* env,jobject thiz, jint videoid){
+// 使用该函数 返回错误类型，如果打开错误，则给出错误提示类型
+jobject
+Java_com_example_devicechecker_V4l2Preview_prepareCamera( JNIEnv* env,jobject thiz, jint videoid){
 
+	LOGE("Java_com_example_devicechecker_V4l2Preview_prepareCamera\n");
 	int ret;
+	static jclass gDeviceErrorMsgClass = NULL;
+	 //创建一个局部引用
+	LOGE("AAA\n");
+	 jclass localRefCls=(*env)->FindClass(env, "com/example/devicechecker/DeviceErrorMsg");
+	if (localRefCls == NULL) {
+		return NULL; /* exception thrown */
+	}
+	LOGE("BBB\n");
+	 /* 创建一个全局引用 */
+	gDeviceErrorMsgClass = (*env)->NewGlobalRef(env, localRefCls);
+	 /* 局部引用localRefCls不再有效，删除局部引用localRefCls*/
+	(*env)->DeleteLocalRef(env, localRefCls);
+	LOGE("CCC\n");
+	if (gDeviceErrorMsgClass == NULL) {
+		return NULL; /* out of memory exception thrown */
+	 }
+	//--- test end
+	memset(errorMSG, 0,MAX_ERROR_LENGTH*sizeof(char));
+	LOGE("Before check Devices\n");
 
 	if(camerabase<0){
 		camerabase = checkCamerabase();
 	}
 
-	ret = opendevice(camerabase + videoid);
+	ret = opendevice(camerabase + videoid,errorMSG);
 
 	if(ret != ERROR_LOCAL){
-		ret = initdevice();
+		ret = initdevice(errorMSG);
 	}
 	if(ret != ERROR_LOCAL){
 		ret = startcapturing();
@@ -474,48 +510,76 @@ Java_com_camera_simplewebcam_CameraPreview_prepareCamera( JNIEnv* env,jobject th
 			closedevice ();
 			LOGE("device resetted");	
 		}
-
 	}
 
 	if(ret != ERROR_LOCAL){
 		rgb = (int *)malloc(sizeof(int) * (IMG_WIDTH*IMG_HEIGHT));
 		ybuf = (int *)malloc(sizeof(int) * (IMG_WIDTH*IMG_HEIGHT));
 	}
-	return ret;
+
+	//填充ErrorMSG并返回
+	// 找到对应的java MSG类,
+	if (gDeviceErrorMsgClass == NULL) {
+		LOGE("java/lang/RuntimeException Can't find class ErrorMSG");
+		return NULL;
+	}
+
+	// 实例化一个对应的类
+	jobject object_datarange = (*env)->AllocObject(env,gDeviceErrorMsgClass);
+
+	if (NULL == object_datarange) {
+		LOGE("java/lang/RuntimeException Can't find object is NULL");
+		// 释放掉全局引用
+		(*env)->DeleteGlobalRef(env,gDeviceErrorMsgClass);
+		return NULL;
+	}
+
+
+	jfieldID jfieldid_result = (*env)->GetFieldID(env,gDeviceErrorMsgClass,
+				"result", "I");
+
+	jfieldID lErrorMsgClass = (*env)->GetFieldID(env,gDeviceErrorMsgClass,
+					"ErrorMsg" , "Ljava/lang/String;");
+
+	if (lErrorMsgClass == NULL) {
+		return NULL;
+	}
+	// 赋值
+	(*env)->SetIntField(env,object_datarange, jfieldid_result, ret);
+	jstring jErrorMSG = (*env)->NewStringUTF(env,(const char*) errorMSG);
+	(*env)->SetObjectField(env,object_datarange, lErrorMsgClass,
+			jErrorMSG);
+	// 释放掉全局引用  may be error delete ref before return object ,just try it
+	(*env)->DeleteGlobalRef(env,gDeviceErrorMsgClass);
+	return object_datarange;
+
 }	
 
 
-
-jint 
-Java_com_camera_simplewebcam_CameraPreview_prepareCameraWithBase( JNIEnv* env,jobject thiz, jint videoid, jint videobase){
+jobject
+Java_com_example_devicechecker_V4l2Preview_prepareCameraWithBase( JNIEnv* env,jobject thiz, jint videoid, jint videobase){
 	
 		int ret;
-
 		camerabase = videobase;
-	
-		return Java_com_camera_simplewebcam_CameraPreview_prepareCamera(env,thiz,videoid);
+		return Java_com_example_devicechecker_V4l2Preview_prepareCamera(env,thiz,videoid);
 	
 }
 
 void 
-Java_com_camera_simplewebcam_CameraPreview_processCamera( JNIEnv* env,
+Java_com_example_devicechecker_V4l2Preview_processCamera( JNIEnv* env,
 										jobject thiz){
 
 	readframeonce();
 }
 
 void 
-Java_com_camera_simplewebcam_CameraPreview_stopCamera(JNIEnv* env,jobject thiz){
+Java_com_example_devicechecker_V4l2Preview_stopCamera(JNIEnv* env,jobject thiz){
 
 	stopcapturing ();
-
 	uninitdevice ();
-
 	closedevice ();
-
 	if(rgb) free(rgb);
 	if(ybuf) free(ybuf);
-        
 	fd = -1;
 
 }

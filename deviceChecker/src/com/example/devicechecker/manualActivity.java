@@ -101,9 +101,15 @@ public class manualActivity extends Activity {
 		bt_v4l2Video.setOnClickListener(new OnClickListener() {
 			
 			@Override
-			public void onClick(View arg0) {
+			public void onClick(View arg0) {				
 				// TODO Auto-generated method stub
-				
+				System.out.println("bt_v4l2Video test !!!!!!!!!!!!");
+				// 创建 一个intent ， 用于 进行activity 的跳转 
+				Intent intent = new Intent();
+				intent.setClass(manualActivity.this, PreviewActivity.class);				
+				intent.putExtra("Type","v4l2");				
+				//start 目标intent
+				startActivity(intent);					
 			}
 		});
 		

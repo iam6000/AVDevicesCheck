@@ -35,6 +35,7 @@
 
 #define ERROR_LOCAL -1
 #define SUCCESS_LOCAL 0
+#define MAX_ERROR_LENGTH 200
 
 struct buffer {
         void *                  start;
@@ -45,6 +46,7 @@ static char            dev_name[16];
 static int              fd              = -1;
 struct buffer *         buffers         = NULL;
 static unsigned int     n_buffers       = 0;
+uint8_t errorMSG[MAX_ERROR_LENGTH]  ;
 
 int camerabase = -1;
 
@@ -63,8 +65,8 @@ int errnoexit(const char *s);
 int xioctl(int fd, int request, void *arg);
 
 int checkCamerabase(void);
-int opendevice(int videoid);
-int initdevice(void);
+int opendevice(int videoid,char* errorMSG);
+int initdevice(char* errorMSG);
 int initmmap(void);
 int startcapturing(void);
 
@@ -78,8 +80,8 @@ int closedevice(void);
 
 void yuyv422toABGRY(unsigned char *src);
 
-jint Java_com_camera_simplewebcam_CameraPreview_prepareCamera( JNIEnv* env,jobject thiz, jint videoid);
-jint Java_com_camera_simplewebcam_CameraPreview_prepareCameraWithBase( JNIEnv* env,jobject thiz, jint videoid, jint videobase);
-void Java_com_camera_simplewebcam_CameraPreview_processCamera( JNIEnv* env,jobject thiz);
-void Java_com_camera_simplewebcam_CameraPreview_stopCamera(JNIEnv* env,jobject thiz);
-void Java_com_camera_simplewebcam_CameraPreview_pixeltobmp( JNIEnv* env,jobject thiz,jobject bitmap);                                                  
+jobject Java_com_example_devicechecker_V4l2Preview_prepareCamera( JNIEnv* env,jobject thiz, jint videoid);
+jobject Java_com_example_devicechecker_V4l2Preview_prepareCameraWithBase( JNIEnv* env,jobject thiz, jint videoid, jint videobase);
+void Java_com_example_devicechecker_V4l2Preview_processCamera( JNIEnv* env,jobject thiz);
+void Java_com_example_devicechecker_V4l2Preview_stopCamera(JNIEnv* env,jobject thiz);
+void Java_com_example_devicechecker_V4l2Preview_pixeltobmp( JNIEnv* env,jobject thiz,jobject bitmap);

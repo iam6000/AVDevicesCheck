@@ -218,6 +218,8 @@ jobject Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable(JNIEnv
 	deviceIsOk = devicesIsAvailable(cardID, deviceID,errorMSG);
 	LOGE("Get Result is %d",deviceIsOk);
 	LOGE("Get MSG %s",errorMSG);
+	// if(!deviceIsOk)  if use if(!deviceIsOk)  will be error
+	//JNI ERROR (app bug): attempt to use stale global reference 0x52
 	if(deviceIsOk == -1)
 	{
 		LOGE("Device is not OK\n");
