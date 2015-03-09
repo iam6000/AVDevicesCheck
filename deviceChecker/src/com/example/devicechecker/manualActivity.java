@@ -53,6 +53,11 @@ public class manualActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
+				System.out.println("bt_AndroidAVTest test !!!!!!!!!!!!!!!!");
+				Intent intent = new Intent(); 
+				intent.setClass(manualActivity.this,PreviewActivity.class );
+				intent.putExtra("Type","AndroidAV");
+				startActivity(intent);				
 				
 			} 
 		}); 
@@ -74,7 +79,11 @@ public class manualActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				
+				System.out.println("bt_AndroidVideo test !!!!!!!!!!!!!!!!");
+				Intent intent = new Intent(); 
+				intent.setClass(manualActivity.this,PreviewActivity.class );
+				intent.putExtra("Type","AndroidVideo");
+				startActivity(intent);					
 			}
 		}); 		
 		
@@ -84,7 +93,7 @@ public class manualActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				System.out.println("bt_android_audio test !!!!!!!!!!!!!!!!");			
+				System.out.println("bt_AndroidAudio test !!!!!!!!!!!!!!!!");			
 				// 继续跳转 到下一个activity 
 				// 创建 一个intent ， 用于 进行activity 的跳转 
 				Intent intent = new Intent();
@@ -107,7 +116,7 @@ public class manualActivity extends Activity {
 				// 创建 一个intent ， 用于 进行activity 的跳转 
 				Intent intent = new Intent();
 				intent.setClass(manualActivity.this, PreviewActivity.class);				
-				intent.putExtra("Type","v4l2");				
+				intent.putExtra("Type","v4l2Video");				
 				//start 目标intent
 				startActivity(intent);					
 			}

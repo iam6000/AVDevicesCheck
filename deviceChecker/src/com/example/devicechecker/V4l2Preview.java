@@ -131,7 +131,7 @@ public class V4l2Preview extends SurfaceView implements SurfaceHolder.Callback, 
 			System.out.println("get Error result :" + mDeviceMsg.result );	
 			System.out.println("get Error MSG :" + mDeviceMsg.ErrorMsg );	
 			AlertDialog.Builder availableBuilder = new AlertDialog.Builder(this.context);				
-			availableBuilder.setTitle("音频采集设备错误");
+			availableBuilder.setTitle("视频采集设备错误");
 			availableBuilder.setMessage(mDeviceMsg.ErrorMsg);
 			availableBuilder.setNegativeButton("返回", null);
 			availableBuilder.create().show();	

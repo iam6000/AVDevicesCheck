@@ -6,11 +6,10 @@ import android.os.Bundle;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.View;
-import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
-public class PreviewActivity extends Activity {
+public class AutoActivity extends Activity {
 	
 	// 根据不同的条件，创建不同的Preview类，并且进行preview的展示
 	private Button deviceIsOK ; 
@@ -18,8 +17,8 @@ public class PreviewActivity extends Activity {
 	private FrameLayout priviewSurface;
 	private CameraPreview camPreview ; 
 	private V4l2Preview v4l2Preview ; 
-	private AndroidAVTest androidAVTest ; 	
-	private String devicetype ;
+	private AndroidAVTest androidAVTest ; 
+	
 	
 	private void initViews()
 	{
@@ -28,6 +27,7 @@ public class PreviewActivity extends Activity {
 		priviewSurface = (FrameLayout)findViewById(R.id.previewsurfaceView);
 		
 	}
+	
 	
 	
 	protected void onCreate(Bundle savedInstanceState) {	
@@ -45,7 +45,6 @@ public class PreviewActivity extends Activity {
 		{
 			// v4l2 视频测试
 			System.out.println("new V4l2Preview !!!!!!!!!!!!!!!!");	
-			devicetype = "linux V4l2 Video deivce";
 			v4l2Preview = new V4l2Preview(this); 	
 			priviewSurface.removeAllViews();
 			priviewSurface.addView(v4l2Preview);				
@@ -54,8 +53,7 @@ public class PreviewActivity extends Activity {
 		else if(value.equals("AndroidVideo"))
 		{
 			// android 视频测试
-			System.out.println("new CameraPreview !!!!!!!!!!!!!!!!");
-			devicetype = "Android Camera Video device";
+			System.out.println("new CameraPreview !!!!!!!!!!!!!!!!");			
 			camPreview = new CameraPreview(this);	
 			priviewSurface.removeAllViews();
 			priviewSurface.addView(camPreview);					
@@ -64,7 +62,6 @@ public class PreviewActivity extends Activity {
 		{
 			// Android 音视频测试
 			System.out.println("new AndroidAV Preview !!!!!!!!!!!!!!!!");	
-			devicetype = "Android Camera Video and Audio device";
 			androidAVTest = new AndroidAVTest(this);
 			//setContentView(androidAVTest);
 			priviewSurface.addView(androidAVTest);	
@@ -74,36 +71,6 @@ public class PreviewActivity extends Activity {
 		{
 			//TODO 
 		}
-		
-		//
-		deviceIsOK.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				// record result 
-				System.out.println("devices " + devicetype + "is OK !!!!!!!!!!!!!!!!");	
-				Intent intent = new Intent();
-				intent.setClass( PreviewActivity.this, manualActivity.class);				
-				startActivity(intent);
-				PreviewActivity.this.finish();
-			}
-		}) ; 
-		
-		deviceIsNotOK.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-				// TODO Auto-generated method stub
-				System.out.println("devices " + devicetype + "is  not OK !!!!!!!!!!!!!!!!");	
-				Intent intent = new Intent();
-				intent.setClass( PreviewActivity.this, manualActivity.class);				
-				startActivity(intent);
-				PreviewActivity.this.finish();
-				
-			}
-		}); 
-		
 		
 	}
 	

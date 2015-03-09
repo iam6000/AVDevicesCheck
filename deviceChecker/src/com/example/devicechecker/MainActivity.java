@@ -42,18 +42,19 @@ public class MainActivity extends Activity {
 						
 		// 定义每一个button所执行的操作
 		// 定义 video 操作
-		autoCheck.setOnClickListener(new OnClickListener() {
-			
+		autoCheck.setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				System.out.println("Button auto test");
-				// 这个 inflater LayoutInflater作用是将layout的xml布局文件实例化为View类对象
 				LayoutInflater inflater = getLayoutInflater();
-				// 直接找到 layout中的androidvideo.xml 
-				final View autoLayout = inflater.inflate(R.layout.autotest, null);
-				new AlertDialog.Builder(MainActivity.this).setTitle("自动测试").setView(autoLayout)
-							.setNegativeButton("cancel", null).show();			
+				final View manualLayout = inflater.inflate(R.layout.autotest, null); 								
+				// 创建 一个intent ， 用于 进行activity 的跳转 
+				Intent intent = new Intent();
+				// 设置 要跳转的 目标 activity ，从 mainActivity 跳到manualActivity 
+				intent.setClass(MainActivity.this, AutoActivity.class);
+				//启动 目标intent
+				startActivity(intent);						
 				
 			}
 		});
@@ -66,15 +67,13 @@ public class MainActivity extends Activity {
 				// TODO Auto-generated method stub
 				System.out.println("Button manual test");
 				LayoutInflater inflater = getLayoutInflater();
-				final View manualLayout = inflater.inflate(R.layout.manualtest, null); 
-								
+				final View manualLayout = inflater.inflate(R.layout.manualtest, null); 								
 				// 创建 一个intent ， 用于 进行activity 的跳转 
 				Intent intent = new Intent();
 				// 设置 要跳转的 目标 activity ，从 mainActivity 跳到manualActivity 
 				intent.setClass(MainActivity.this, manualActivity.class);
 				//启动 目标intent
-				startActivity(intent);
-									
+				startActivity(intent);							
 					
 				}
 				

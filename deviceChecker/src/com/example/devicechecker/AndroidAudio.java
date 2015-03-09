@@ -22,8 +22,9 @@ public class AndroidAudio extends AudioDevice {
 	
 	
 	public void start()
-	{
+	{		
 		
+		System.out.println("AndoridAudio start !!!!!!!");
 		// 用getMinBufferSize()方法得到采集数据所需要的最小缓冲区的大小
 		recBufSize = AudioRecord.getMinBufferSize(frequency,
 						channelConfiguration, audioEncoding);
