@@ -6,6 +6,7 @@ import android.os.Bundle;
 import android.view.Surface;
 import android.view.SurfaceView;
 import android.view.View;
+import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
@@ -22,55 +23,50 @@ public class AutoActivity extends Activity {
 	
 	private void initViews()
 	{
-		deviceIsOK = (Button)findViewById(R.id.VideoIsOK); 
-		deviceIsNotOK = (Button)findViewById(R.id.VideoIsNotOK);
-		priviewSurface = (FrameLayout)findViewById(R.id.previewsurfaceView);
+		deviceIsOK = (Button)findViewById(R.id.AVisOK); 
+		deviceIsNotOK = (Button)findViewById(R.id.trylinuxDeivice);
+		priviewSurface = (FrameLayout)findViewById(R.id.surfaceView1);		
+	}
+	// TODO 获取设备平台信息，并开始写如result文件
+	private void getDevicesInfo()
+	{
 		
 	}
-	
-	
+		
 	
 	protected void onCreate(Bundle savedInstanceState) {	
 		super.onCreate(savedInstanceState);
 		// 载入 preview view !!!
-		setContentView(R.layout.preview);
-		System.out.println("PrviewActivity  onCreate !!!!!!!!!!!!!!!!");			
-		initViews();
-				
+		setContentView(R.layout.autotest);
+		System.out.println("AutoActivity  onCreate !!!!!!!!!!!!!!!!");			
+		initViews();		
+		getDevicesInfo();
 		Intent intent = this.getIntent(); 
 		// 获取 传入的数据，并判断初始化哪一种设备
-		Bundle bundle = intent.getExtras();
-		String value = bundle.getString("Type");		
-		if(value.equals("v4l2Video"))
-		{
-			// v4l2 视频测试
-			System.out.println("new V4l2Preview !!!!!!!!!!!!!!!!");	
-			v4l2Preview = new V4l2Preview(this); 	
-			priviewSurface.removeAllViews();
-			priviewSurface.addView(v4l2Preview);				
+		// Android 音视频测试		
+		androidAVTest = new AndroidAVTest(this);		
+		priviewSurface.addView(androidAVTest);			
+		// 处理两个button		
+		
+		deviceIsOK.setOnClickListener(new OnClickListener() {
 			
-		}	
-		else if(value.equals("AndroidVideo"))
-		{
-			// android 视频测试
-			System.out.println("new CameraPreview !!!!!!!!!!!!!!!!");			
-			camPreview = new CameraPreview(this);	
-			priviewSurface.removeAllViews();
-			priviewSurface.addView(camPreview);					
-		}	
-		else if(value.equals("AndroidAV"))
-		{
-			// Android 音视频测试
-			System.out.println("new AndroidAV Preview !!!!!!!!!!!!!!!!");	
-			androidAVTest = new AndroidAVTest(this);
-			//setContentView(androidAVTest);
-			priviewSurface.addView(androidAVTest);	
-			//priviewSurface = androidAVTest ;
-		}
-		else if(value.equals("LinuxAV"))
-		{
-			//TODO 
-		}
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				// 保存信息
+			}
+		}) ;  
+		
+		deviceIsNotOK.setOnClickListener(new OnClickListener() {
+			
+			@Override
+			public void onClick(View arg0) {
+				// TODO Auto-generated method stub
+				// 检测设备权限
+				//priviewSurface.removeView(androidAVTest);
+				
+			}
+		});
 		
 	}
 	
