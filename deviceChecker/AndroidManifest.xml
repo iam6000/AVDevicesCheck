@@ -38,7 +38,7 @@
             android:name = "com.example.devicechecker.PreviewActivity" >
         </activity>    
         <activity 
-            android:name = "com.example.devicechecker.AutoActivity" >
+            android:name = "com.example.devicechecker.DevicePermissionActivity" >
         </activity>    
     </application>
 

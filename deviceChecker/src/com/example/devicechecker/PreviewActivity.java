@@ -84,7 +84,8 @@ public class PreviewActivity extends Activity {
 				// record result 
 				System.out.println("devices " + devicetype + "is OK !!!!!!!!!!!!!!!!");	
 				Intent intent = new Intent();
-				intent.setClass( PreviewActivity.this, manualActivity.class);				
+				intent.setClass( PreviewActivity.this, manualActivity.class);	
+				
 				startActivity(intent);
 				PreviewActivity.this.finish();
 			}
@@ -97,7 +98,8 @@ public class PreviewActivity extends Activity {
 				// TODO Auto-generated method stub
 				System.out.println("devices " + devicetype + "is  not OK !!!!!!!!!!!!!!!!");	
 				Intent intent = new Intent();
-				intent.setClass( PreviewActivity.this, manualActivity.class);				
+				intent.setClass( PreviewActivity.this, manualActivity.class);		
+				
 				startActivity(intent);
 				PreviewActivity.this.finish();
 				

@@ -13,7 +13,7 @@ import android.view.SurfaceHolder.Callback;
 import android.view.SurfaceView;
 
 public class AndroidAVTest extends SurfaceView implements Callback, Runnable {
-	static final String tag = "CameraPreview";
+	static final String tag = "AndroidAVTest";
 	private SurfaceHolder holder;
 	private static final boolean DEBUG = true;
 	protected Context context;

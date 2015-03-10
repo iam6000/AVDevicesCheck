@@ -10,17 +10,10 @@
         android:text="选择测试种类并测试设备" />
 
     <Button
-        android:id="@+id/AndroidAV"
+        android:id="@+id/DevicePermission"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Android音视频设备测试" >
-    </Button>
-
-    <Button
-        android:id="@+id/LinuxAV"
-        android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:text="linux层音视频设备测试" >
+        android:text="linux权限测试" >
     </Button>
 
    <TextView

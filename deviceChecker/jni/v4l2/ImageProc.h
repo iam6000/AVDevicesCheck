@@ -85,3 +85,4 @@ jobject Java_com_example_devicechecker_V4l2Preview_prepareCameraWithBase( JNIEnv
 void Java_com_example_devicechecker_V4l2Preview_processCamera( JNIEnv* env,jobject thiz);
 void Java_com_example_devicechecker_V4l2Preview_stopCamera(JNIEnv* env,jobject thiz);
 void Java_com_example_devicechecker_V4l2Preview_pixeltobmp( JNIEnv* env,jobject thiz,jobject bitmap);
+//jobject Java_com_example_devicechecker_DeviceScan_checkCameraWithBase( JNIEnv* env,jobject thiz, jint videoid, jint videobase);

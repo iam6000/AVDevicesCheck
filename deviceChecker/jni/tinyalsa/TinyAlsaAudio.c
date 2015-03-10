@@ -261,52 +261,78 @@ jobject Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable(JNIEnv
 
 	}
 }
-/*
-jint JNICALL JNI_OnLoad (JavaVM* vm,void* reserved){
-
-	UnionJNIEnvToVoid uenv;
-	uenv.venv = NULL;
-	jint result = -1;
-	LOGE("Load JNI\n");
-	JNIEnv* env = NULL;
-	vm->GetEnv(&uenv.venv, JNI_VERSION_1_6);
-	env = uenv.env;
-    jclass tmp = (*env)->FindClass(env,"com/example/devicechecker/DeviceErrorMsg");
-    myClass =(jclass)env->NewGlobalRef(tmp);
-    return JNI_VERSION_1_6;
-}
-*/
 
 
-/*
-jint JNI_OnLoad(JavaVM* vm, void* reserved)
+// just try it
+jobject Java_com_example_devicechecker_DeviceScan_checkDeviceAvailable(JNIEnv* env,jobject thiz, jint cardID, jint deviceID)
 {
-    UnionJNIEnvToVoid uenv;
-    uenv.venv = NULL;
-    jint result = -1;
-    JNIEnv* env = NULL;
-    LOGI("JNI_OnLoad");
-    if (vm->GetEnv(&uenv.venv, JNI_VERSION_1_4) != JNI_OK)
-    {
-        LOGE("ERROR: GetEnv failed");
-        goto bail;
+	LOGE("Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable\n");
+	//  test begin
+	static jclass gDeviceErrorMsgClass = NULL;
+	 //创建一个局部引用
+	LOGE("AAA\n");
+	 jclass localRefCls=(*env)->FindClass(env, "com/example/devicechecker/DeviceErrorMsg");
+	if (localRefCls == NULL) {
+		return NULL; /* exception thrown */
+	}
+	LOGE("BBB\n");
+	 /* 创建一个全局引用 */
+	gDeviceErrorMsgClass = (*env)->NewGlobalRef(env, localRefCls);
+	 /* 局部引用localRefCls不再有效，删除局部引用localRefCls*/
+	(*env)->DeleteLocalRef(env, localRefCls);
+	LOGE("CCC\n");
+	if (gDeviceErrorMsgClass == NULL) {
+		return NULL; /* out of memory exception thrown */
+	 }
+	//--- test end
+	memset(errorMSG, 0,MAX_ERROR_LENGTH*sizeof(char));
+	LOGE("Before check Devices\n");
 
-    }
-    env = uenv.env;
-    if (registerNatives(env) != JNI_TRUE)
-    {
-        LOGE("ERROR: registerNatives failed");
-        goto bail;
-    }
+	deviceIsOk = devicesIsAvailable(cardID, deviceID,errorMSG);
+	LOGE("Get Result is %d",deviceIsOk);
+	LOGE("Get MSG %s",errorMSG);
+	// if(!deviceIsOk)  if use if(!deviceIsOk)  will be error
+	//JNI ERROR (app bug): attempt to use stale global reference 0x52
+	if(deviceIsOk == -1)
+	{
+		LOGE("Device is not OK\n");
+		// 找到对应的java MSG类
 
-    result = JNI_VERSION_1_4;
+		if (gDeviceErrorMsgClass == NULL) {
+			LOGE("java/lang/RuntimeException Can't find class CaAccountNoInfo");
+			return NULL;
+		}
 
-bail:
+		// 实例化一个对应的类
+		jobject object_datarange = (*env)->AllocObject(env,gDeviceErrorMsgClass);
 
-    return result;
+		if (NULL == object_datarange) {
+			LOGE("java/lang/RuntimeException Can't find object is NULL");
+			// 释放掉全局引用
+			(*env)->DeleteGlobalRef(env,gDeviceErrorMsgClass);
+			return NULL;
+		}
 
+
+		jfieldID jfieldid_result = (*env)->GetFieldID(env,gDeviceErrorMsgClass,
+					"result", "I");
+
+		jfieldID lErrorMsgClass = (*env)->GetFieldID(env,gDeviceErrorMsgClass,
+						"ErrorMsg" , "Ljava/lang/String;");
+
+		if (lErrorMsgClass == NULL) {
+			return NULL;
+		}
+		// 赋值
+		(*env)->SetIntField(env,object_datarange, jfieldid_result, deviceIsOk);
+		jstring jErrorMSG = (*env)->NewStringUTF(env,(const char*) errorMSG);
+		(*env)->SetObjectField(env,object_datarange, lErrorMsgClass,
+				jErrorMSG);
+		// 释放掉全局引用  may be error delete ref before return object ,just try it
+		(*env)->DeleteGlobalRef(env,gDeviceErrorMsgClass);
+		return object_datarange;
+
+	}
 }
-*/
-
 
 

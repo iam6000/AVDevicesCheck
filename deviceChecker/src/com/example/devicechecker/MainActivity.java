@@ -48,11 +48,13 @@ public class MainActivity extends Activity {
 				// TODO Auto-generated method stub
 				System.out.println("Button auto test");
 				LayoutInflater inflater = getLayoutInflater();
-				final View manualLayout = inflater.inflate(R.layout.autotest, null); 								
+				final View autoLayout = inflater.inflate(R.layout.preview, null); 								
 				// 创建 一个intent ， 用于 进行activity 的跳转 
 				Intent intent = new Intent();
 				// 设置 要跳转的 目标 activity ，从 mainActivity 跳到manualActivity 
-				intent.setClass(MainActivity.this, AutoActivity.class);
+				// use AndroidAV
+				intent.setClass(MainActivity.this, PreviewActivity.class);
+				intent.putExtra("Type","AndroidAV");
 				//启动 目标intent
 				startActivity(intent);						
 				

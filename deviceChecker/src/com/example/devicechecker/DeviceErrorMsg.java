@@ -26,7 +26,7 @@ public class DeviceErrorMsg {
 	
 	public String getErrorMSG()
 	{			
-			return this.ErrorMsg ;
+		return this.ErrorMsg ;
 	}
 		
 }

@@ -463,7 +463,6 @@ Java_com_example_devicechecker_V4l2Preview_pixeltobmp( JNIEnv* env,jobject thiz,
 	}
 
 	AndroidBitmap_unlockPixels(env, bitmap);
-
 }
 
 // 使用该函数 返回错误类型，如果打开错误，则给出错误提示类型
@@ -583,4 +582,75 @@ Java_com_example_devicechecker_V4l2Preview_stopCamera(JNIEnv* env,jobject thiz){
 	fd = -1;
 
 }
+
+
+// 单纯检测video 设备是否可行
+jobject
+Java_com_example_devicechecker_DeviceScan_checkCameraWithBase( JNIEnv* env,jobject thiz, jint videoid)
+{
+	int ret;
+	static jclass gDeviceErrorMsgClass = NULL;
+	 //创建一个局部引用
+	LOGE("Java_com_example_devicechecker_V4l2Preview_checkCameraWithBase\n");
+	jclass localRefCls=(*env)->FindClass(env, "com/example/devicechecker/DeviceErrorMsg");
+	if (localRefCls == NULL) {
+		return NULL; /* exception thrown */
+	}
+	 /* 创建一个全局引用 */
+	gDeviceErrorMsgClass = (*env)->NewGlobalRef(env, localRefCls);
+	 /* 局部引用localRefCls不再有效，删除局部引用localRefCls*/
+	(*env)->DeleteLocalRef(env, localRefCls);
+
+	if (gDeviceErrorMsgClass == NULL) {
+		return NULL; /* out of memory exception thrown */
+	 }
+
+	memset(errorMSG, 0,MAX_ERROR_LENGTH*sizeof(char));
+	LOGE("Before check Devices\n");
+	if(camerabase<0){
+		camerabase = checkCamerabase();
+	}
+
+	ret = opendevice(camerabase + videoid,errorMSG);
+
+	if(ret != ERROR_LOCAL){
+		ret = initdevice(errorMSG);
+		uninitdevice ();
+		closedevice ();
+	}
+	//填充ErrorMSG并返回
+	// 找到对应的java MSG类,
+	if (gDeviceErrorMsgClass == NULL) {
+		LOGE("java/lang/RuntimeException Can't find class ErrorMSG");
+		return NULL;
+	}
+	// 实例化一个对应的类
+	jobject object_datarange = (*env)->AllocObject(env,gDeviceErrorMsgClass);
+
+	if (NULL == object_datarange) {
+		LOGE("java/lang/RuntimeException Can't find object is NULL");
+		// 释放掉全局引用
+		(*env)->DeleteGlobalRef(env,gDeviceErrorMsgClass);
+		return NULL;
+	}
+
+	jfieldID jfieldid_result = (*env)->GetFieldID(env,gDeviceErrorMsgClass,
+				"result", "I");
+
+	jfieldID lErrorMsgClass = (*env)->GetFieldID(env,gDeviceErrorMsgClass,
+					"ErrorMsg" , "Ljava/lang/String;");
+
+	if (lErrorMsgClass == NULL) {
+		return NULL;
+	}
+	// 赋值
+	(*env)->SetIntField(env,object_datarange, jfieldid_result, ret);
+	jstring jErrorMSG = (*env)->NewStringUTF(env,(const char*) errorMSG);
+	(*env)->SetObjectField(env,object_datarange, lErrorMsgClass,
+			jErrorMSG);
+	// 释放掉全局引用  may be error delete ref before return object ,just try it
+	(*env)->DeleteGlobalRef(env,gDeviceErrorMsgClass);
+	return object_datarange;
+}
+
 

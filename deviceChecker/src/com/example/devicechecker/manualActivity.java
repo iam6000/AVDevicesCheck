@@ -11,8 +11,8 @@ import android.widget.Button;
 
 public class manualActivity extends Activity {
 	
-	private Button bt_AndroidAVTest; 
-	private Button bt_LinuxAVTest ; 
+	private Button bt_Permission; 
+	//private Button bt_LinuxAVTest ; 
 	
 	private Button bt_AndroidAudio ; 
 	private Button bt_AndroidVideo ; 
@@ -33,8 +33,8 @@ public class manualActivity extends Activity {
 	
 	private void initUIButton()
 	{	
-		bt_AndroidAVTest = (Button)findViewById(R.id.AndroidAV);
-		bt_LinuxAVTest = (Button)findViewById(R.id.LinuxAV);
+		bt_Permission = (Button)findViewById(R.id.DevicePermission);
+		//bt_LinuxAVTest = (Button)findViewById(R.id.LinuxAV);
 		
 		bt_AndroidVideo = (Button)findViewById(R.id.AndroidVideo);
 		bt_AndroidAudio = (Button)findViewById(R.id.AndroidAudio);
@@ -48,31 +48,29 @@ public class manualActivity extends Activity {
 	private void ManualViewListener()
 	{
 		// ¼àÌýAndoridAV 
-		bt_AndroidAVTest.setOnClickListener(new OnClickListener() {
+		bt_Permission.setOnClickListener(new OnClickListener() {
 			
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
-				System.out.println("bt_AndroidAVTest test !!!!!!!!!!!!!!!!");
+				System.out.println("bt_Permission test !!!!!!!!!!!!!!!!");
 				Intent intent = new Intent(); 
-				intent.setClass(manualActivity.this,PreviewActivity.class );
-				intent.putExtra("Type","AndroidAV");
-				startActivity(intent);				
+				intent.setClass(manualActivity.this,DevicePermissionActivity.class );
 				
+				startActivity(intent);						
 			} 
 		}); 
 		
-		
+		/*
 		//¼àÌý Linux²ãAV
-		bt_LinuxAVTest.setOnClickListener(new OnClickListener() {
-			
+		bt_LinuxAVTest.setOnClickListener(new OnClickListener() {			
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				
 			}
 		});
-		
+		*/
 		// ¼àÌý android Video
 		bt_AndroidVideo.setOnClickListener(new OnClickListener() {
 			
