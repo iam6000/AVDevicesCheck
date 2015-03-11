@@ -50,10 +50,82 @@ public class AndroidAudio extends AudioDevice {
 		{
 			doRecordAndPlay = false ;
 		}
+		if(audioRecord != null)
+		{
+			audioRecord.release() ; 
+			audioRecord = null ; 
+		}
+		if(audioTrack != null)
+		{
+			audioTrack.release() ; 
+			audioTrack = null ;
+		}
 		
 		android.os.Process.killProcess(android.os.Process.myPid());
 	}
 	
+	// 检测 AudioRecord 
+	public DeviceErrorMsg checkAudioRecord()
+	{
+		DeviceErrorMsg  errorInfo = new DeviceErrorMsg() ;
+		recBufSize = AudioRecord.getMinBufferSize(frequency,
+				channelConfiguration, audioEncoding);
+		
+		try{
+			// 实例化AudioRecord(声音来源，采样率，声道设置，采样声音编码，缓存大小）
+			audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, frequency,
+							channelConfiguration, audioEncoding, recBufSize);
+		}catch(Exception excaption){
+			errorInfo.setErrorMSG(excaption.getMessage(), "AudioRecord", -1);
+		}
+		
+		if(audioRecord != null)
+		{
+			if(audioRecord.getState() ==  AudioRecord.STATE_UNINITIALIZED)
+			{
+				errorInfo.setErrorMSG("AudioRecord STATE_UNINITIALIZED ", "AudioRecord", 0);
+			}
+			else
+			{
+				errorInfo.setErrorMSG("Android Record 录音设备 is OK", "AudioRecord", 0);
+			}
+				
+			
+						
+			audioRecord.release() ;
+			audioRecord = null ;
+		}
+		
+		return errorInfo ; 
+	}
+	
+	// 检测 AudioTrack 
+	public DeviceErrorMsg checkAudioTrack()
+	{
+		DeviceErrorMsg  errorInfo = new DeviceErrorMsg() ;
+		playBufSize = AudioTrack.getMinBufferSize(frequency,
+				channelConfiguration, audioEncoding);
+		
+		try{
+			// 实例化AudioRecord(声音来源，采样率，声道设置，采样声音编码，缓存大小）
+			// 实例化 AudioTrack 播放声音
+			audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, frequency,
+							channelConfiguration, audioEncoding, playBufSize,
+							AudioTrack.MODE_STREAM);
+			audioTrack.setStereoVolume(0.7f, 0.7f);	
+		}catch(Exception excaption){
+			errorInfo.setErrorMSG(excaption.getMessage(), "audioTrack", -1);
+		}
+		
+		if(audioTrack != null)
+		{
+			errorInfo.setErrorMSG("Android Track 播放设备 is OK", "audioTrack", 0);
+			audioTrack.release() ;
+			audioTrack = null ;
+		}
+		
+		return errorInfo ; 
+	}
 	
 	//录音并且播放
 	public void recordAndPlay()

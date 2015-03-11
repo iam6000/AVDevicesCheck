@@ -19,9 +19,8 @@
         android:id="@+id/Button01"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_centerHorizontal="true"
         android:layout_centerVertical="true"
-        android:text="自动测试" />
+        android:text="音视频设备预览" />
 
     <Button
         android:id="@+id/Button02"
@@ -29,21 +28,29 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/Button01"
         android:layout_centerHorizontal="true"
-        android:text="手动测试" />
-
-    <Button
-        android:id="@+id/Button03"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_below="@+id/Button02"
-        android:layout_centerHorizontal="true"
-        android:text="上传测试数据" />
+        android:text="音视频设备测试" />
+    
+   <Button
+       android:id="@+id/Button03"
+       android:layout_width="match_parent"
+       android:layout_height="wrap_content"
+       android:layout_below="@+id/Button02"
+       android:layout_centerHorizontal="true"
+       android:text="视频编解码测试" />
 
     <Button
         android:id="@+id/Button04"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_below="@+id/Button03"
+        android:layout_centerHorizontal="true"
+        android:text="上传测试数据" />
+
+    <Button
+        android:id="@+id/Button05"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_below="@+id/Button04"
         android:layout_centerHorizontal="true"
         android:text="导出测试数据到U盘" />
 

@@ -1,5 +1,8 @@
 package com.example.devicechecker;
 
+import java.io.FileWriter;
+import java.io.IOException;
+
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
@@ -20,10 +23,18 @@ public class DevicePermissionActivity extends Activity {
 	private TextView mPcmTextView ; 
 	private TextView mVideoTestView ;
 	private TextView mICNameView;
+	private TextView mAndroidCameraView ; 
+	private TextView mAudioRecordView ; 
+	private TextView mAudioTrackView ; 
+	
 	
 	private String mICResult ; 
+	private String mTVType ; 
 	private String mPcmDevicesResult ; 
 	private String mVideoDevicesResult ;
+	private String mAndroidCameraResult ; 
+	private String mAudioRecordResult ; 
+	private String mAudioTrackResult ; 
 
 	
 	protected void onCreate(Bundle savedInstanceState) {		
@@ -33,6 +44,10 @@ public class DevicePermissionActivity extends Activity {
 		mPcmTextView = (TextView)findViewById(R.id.AudioName);
 		mVideoTestView = (TextView)findViewById(R.id.VideoName);
 		mICNameView = (TextView)findViewById(R.id.ICName);
+		mAndroidCameraView = (TextView)findViewById(R.id.AndroidVideoName);
+		mAudioRecordView = (TextView)findViewById(R.id.AudioRecordName);
+		mAudioTrackView = (TextView)findViewById(R.id.AudioTrackName);
+		
 		
 		mDeviceScaner = new DeviceScan(DevicePermissionActivity.this);
 		mDeviceScaner.beginScan() ; 
@@ -40,7 +55,8 @@ public class DevicePermissionActivity extends Activity {
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
 		builder.setTitle("USB设备操作");
 		builder.setMessage("请完成一次摄像头拔插操作！\n 若摄像头已插上，请拔掉，再插上\n 若摄像头未插上，请直接插上\n");
-		builder.setCancelable(false);
+		builder.setCancelable(false);	
+
 		
 		builder.setPositiveButton("已完成插拔操作,并已插上摄像头", new OnClickListener() {
 			
@@ -60,6 +76,10 @@ public class DevicePermissionActivity extends Activity {
 					// 判断Result内容
 					if(pcmResult != null)
 					{
+						if(!pcmResult.isErrorHappen())
+						{
+							pcmResult.ErrorMsg = "Is useAble!";
+						}
 						mPcmDevicesResult = pcmResult.getErrorMSG();
 					}
 				}
@@ -75,6 +95,11 @@ public class DevicePermissionActivity extends Activity {
 					videoResult = mDeviceScaner.checkVideoPermission(mDeviceScaner.getVideoDevices());
 					if(videoResult != null)
 					{
+						
+						if(!videoResult.isErrorHappen())
+						{
+							videoResult.ErrorMsg = "Is useAble";
+						}
 						mVideoDevicesResult =  mDeviceScaner.getVideoDevices()  + "\t     " +  videoResult.getErrorMSG();
 					}			
 				}
@@ -82,19 +107,97 @@ public class DevicePermissionActivity extends Activity {
 				{
 					mVideoDevicesResult = "无法检测到视频设备";
 				}
+							
+								
+				// check Android Devices
+				mDeviceScaner.checkAndroidCamera(); 
+				mDeviceScaner.checkAndoridTrack() ; 
+				mDeviceScaner.checkAndroidRecord() ;
 				
+				
+				if(mDeviceScaner.CameraMsg.getErrorMSG() != null )
+				{
+					mAndroidCameraResult = mDeviceScaner.CameraMsg.getErrorMSG() ;
+				}
+				else 
+				{
+					mAndroidCameraResult = "404 wowowowowo";
+				}
+				
+				if(mDeviceScaner.AudioRecordMsg.getErrorMSG() != null)
+				{
+					mAudioRecordResult = mDeviceScaner.AudioRecordMsg.getErrorMSG() ;
+				}
+				else 
+				{
+					mAudioRecordResult = "404 wowowowo"; 
+				}
+				
+				if(mDeviceScaner.AudioTrackMsg.getErrorMSG() != null)
+				{
+					mAudioTrackResult = mDeviceScaner.AudioTrackMsg.getErrorMSG() ; 
+				}
+				else 
+				{
+					mAudioTrackResult = "404 wowowow";
+				}
+			
 				
 				// Check IC TYPE ; 
 				mICResult = android.os.Build.DEVICE;
+				//mTVType = android.os.Build.USER;			
 				
 				mICNameView.setText(mICResult);
 				mPcmTextView.setText(mPcmDevicesResult);
-				mVideoTestView.setText(mVideoDevicesResult);						
+				mVideoTestView.setText(mVideoDevicesResult);	
+				mAndroidCameraView.setText(mAndroidCameraResult);
+				mAudioRecordView.setText(mAudioRecordResult);
+				mAudioTrackView.setText(mAudioTrackResult);						
+							
+				// 写入文件
+				FileWriter fw  = null ;
+				String filename = getDataPath(mContext,"checkResult.txt");
+				try {					
+					fw = new FileWriter(filename,true);
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}  
+				
+				// 将结果写入文件
+				if(fw != null)
+				{
+					String platInfo = "平台信息： " + mICResult + "\n";
+					String cameraInfo = "Camera信息: \n"  
+									 + "AndroidCamera： " + mAndroidCameraResult + "\n" 
+									 + "LinuxCamera: " + mVideoDevicesResult + "\n";
+					String audioInfo = "Audio信息: \n"
+									+"AndroidRecord :" + mAudioRecordResult + "\n" 
+									+ "AndroidTrack :" + mAudioTrackResult + "\n"
+									+ "TinyAlsa :"  + mPcmDevicesResult + "\n" ;
+					try {
+						fw.write(platInfo);
+						fw.write(cameraInfo);
+						fw.write(audioInfo);
+						fw.flush();
+					} catch (IOException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}				
+					
+				}
 				
 			}
 		});		
 		builder.create().show();	
 		
+	}
+	
+	private String getDataPath(Context context, String fileName) {		
+		if (context != null && fileName != null) {
+			return context.getFilesDir() + "/" + fileName;
+		}
+		return null;
 	}
 	
 	

@@ -1,6 +1,7 @@
 package com.example.devicechecker;
 
 import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -8,9 +9,15 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.DialogInterface.OnClickListener;
+import android.graphics.ImageFormat;
+import android.hardware.Camera;
+import android.hardware.Camera.Size;
+import android.hardware.Camera.CameraInfo;
+import android.hardware.Camera.Parameters;
+import android.util.Log;
 import android.widget.Toast;
 
-public class DeviceScan {
+public class DeviceScan   {
 	
 	Context mContext;
 	static private String pcmDevicePath = "/dev/snd/";
@@ -19,8 +26,16 @@ public class DeviceScan {
 	static private String pcmDeviceName ; 
 	static private String videoDeviceName ; 
 	
+	// linux  层设备错误信息
 	public DeviceErrorMsg pcmErrorMsg ; 
 	public DeviceErrorMsg videoErrorMsg ;
+	
+	// android 层设备错误信息
+	public DeviceErrorMsg CameraMsg =  new DeviceErrorMsg();; 
+	public DeviceErrorMsg AudioTrackMsg  = new DeviceErrorMsg();; 
+	public DeviceErrorMsg AudioRecordMsg = new DeviceErrorMsg(); ;
+	
+	
 	int mCardID = -1 ; 
 	int mDeviceID = -1 ; 
 	
@@ -341,6 +356,99 @@ public class DeviceScan {
 		
 	}
 	
+	
+	// 检测 Android 层 Camera设备 
+	public DeviceErrorMsg checkAndroidCamera()
+	{
+		// 检查Camera 数量
+		Camera camera = null ;
+		//CameraMsg = new DeviceErrorMsg();
+		int i = Camera.getNumberOfCameras(); 		
+		if(i == 0 )
+		{
+			CameraMsg.setErrorMSG("getNumberOfCameras == 0! No Camera found", "Camera", -1); 
+		}
+		else 
+		{
+			
+			// try to open 
+	        for(int j = 0 ; j < Camera.getNumberOfCameras(); ++j)
+	        {
+	        	System.out.println( "Camera.CameraInfo()" );
+	        	try{
+		            Camera.CameraInfo info = new Camera.CameraInfo();
+		            Camera.getCameraInfo(j, info);
+	        	}catch(Exception e){
+	        		CameraMsg.setErrorMSG(e.getMessage(), "Camera", -1);	
+	        	}
+	            try{ 
+	            	 camera = Camera.open(j); 
+				}catch(Exception e){
+					CameraMsg.setErrorMSG(e.getMessage(), "Camera", -1);					
+				}           
+	           
+	        }
+	        
+	        // try to set Param
+	        if(camera != null)
+	        {
+	        	Camera.Parameters  parameters = camera.getParameters();
+			    int format = ImageFormat.NV21;	
+			    int width = 640 ; 
+			    int height = 480 ;
+			    parameters.setPreviewFormat(format);	
+				parameters.setPreviewSize(width, height);
+				List<Size> vSizeList = parameters.getSupportedPictureSizes();
+				for(int k = 0 ; k < vSizeList.size(); ++k)
+				{
+					Size vSize = vSizeList.get(k);
+				}			
+				
+				try{				
+					camera.setParameters(parameters);						
+				}catch(Exception excaption){
+					//CameraMsg.setErrorMSG(excaption.getMessage(), "Camera", -1);
+					camera.release();
+					camera= null ;
+				}				
+				
+				// finaly close Camera 
+				if(camera != null)
+				{
+					// camera is OK 
+					CameraMsg.setErrorMSG("Camera Is OK", "camera", 0);
+					camera.stopPreview(); 
+					camera.release(); 
+					camera = null ;
+				}
+	        }     
+	        	        
+		}
+		
+		return CameraMsg ; 
+	}
+	
+	
+	// 检测  Andorid 层 Audio设备
+	public DeviceErrorMsg checkAndoridTrack()
+	{		
+		AndroidAudio audiodevice = new AndroidAudio() ; 
+		
+		AudioTrackMsg = audiodevice.checkAudioTrack() ; 		
+		
+		return AudioTrackMsg ;
+	}
+	
+	public DeviceErrorMsg checkAndroidRecord()
+	{
+		AndroidAudio audiodevice = new AndroidAudio() ; 
+		AudioRecordMsg  = audiodevice.checkAudioRecord();
+		
+		return AudioRecordMsg ; 
+	}
+	
+	
+	// 检测 Audio设备 	
 	/*!
 	 *  检测 Device path是都合法
 	 */

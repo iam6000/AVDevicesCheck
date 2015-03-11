@@ -24,12 +24,54 @@
         android:layout_height="wrap_content"
         android:text=""
         android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <TextView
+        android:id="@+id/AndroidVideoType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Android视频设备"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/AndroidVideoName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+
+    <TextView
+        android:id="@+id/AudioRecordType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Android音频采集设备"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/AudioRecordName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceMedium" />
+    
+    <TextView
+        android:id="@+id/AudioTrackType"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Android音频播放设备"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:id="@+id/AudioTrackName"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text=""
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/VideoType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="视频设备"
+        android:text="linux视频设备"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
@@ -43,7 +85,7 @@
         android:id="@+id/AudioType"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="音频设备"
+        android:text="linux音频设备"
         android:textAppearance="?android:attr/textAppearanceLarge" />
 
     <TextView
@@ -52,5 +94,7 @@
         android:layout_height="wrap_content"
         android:text=""
         android:textAppearance="?android:attr/textAppearanceMedium" />
+
+
 
 </LinearLayout>

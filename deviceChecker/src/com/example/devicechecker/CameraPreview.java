@@ -15,6 +15,8 @@ import android.graphics.ImageFormat;
 import android.graphics.Rect;
 import android.hardware.Camera;
 import android.hardware.Camera.Size;
+import android.hardware.Camera.CameraInfo;
+import android.hardware.Camera.Parameters;
 
 import android.view.SurfaceHolder;
 import android.view.SurfaceHolder.Callback;

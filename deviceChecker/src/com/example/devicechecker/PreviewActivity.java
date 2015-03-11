@@ -1,18 +1,21 @@
 package com.example.devicechecker;
 
 import android.app.Activity;
+import android.app.AlertDialog;
+import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
-import android.view.Surface;
-import android.view.SurfaceView;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.Button;
 import android.widget.FrameLayout;
 
+
 public class PreviewActivity extends Activity {
 	
 	// 根据不同的条件，创建不同的Preview类，并且进行preview的展示
+	protected Context mContext;
 	private Button deviceIsOK ; 
 	private Button deviceIsNotOK;
 	private FrameLayout priviewSurface;
@@ -20,6 +23,10 @@ public class PreviewActivity extends Activity {
 	private V4l2Preview v4l2Preview ; 
 	private AndroidAVTest androidAVTest ; 	
 	private String devicetype ;
+	
+	private DeviceScan mDeviceScaner; 
+	
+	int videoID = 0 ;
 	
 	private void initViews()
 	{
@@ -32,8 +39,10 @@ public class PreviewActivity extends Activity {
 	
 	protected void onCreate(Bundle savedInstanceState) {	
 		super.onCreate(savedInstanceState);
+		
 		// 载入 preview view !!!
 		setContentView(R.layout.preview);
+		mContext = PreviewActivity.this;
 		System.out.println("PrviewActivity  onCreate !!!!!!!!!!!!!!!!");			
 		initViews();
 				
@@ -46,9 +55,39 @@ public class PreviewActivity extends Activity {
 			// v4l2 视频测试
 			System.out.println("new V4l2Preview !!!!!!!!!!!!!!!!");	
 			devicetype = "linux V4l2 Video deivce";
-			v4l2Preview = new V4l2Preview(this); 	
-			priviewSurface.removeAllViews();
-			priviewSurface.addView(v4l2Preview);				
+			// do check device Id  
+			
+			
+			mDeviceScaner = new DeviceScan(mContext);
+			mDeviceScaner.beginScan() ; 				
+						
+			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
+			builder.setTitle("USB设备操作");
+			builder.setMessage("请完成一次摄像头拔插操作！\n 若摄像头已插上，请拔掉，再插上\n 若摄像头未插上，请直接插上\n");
+			builder.setCancelable(false);	
+
+			
+			builder.setPositiveButton("已完成插拔操作，并已插上摄像头", new DialogInterface.OnClickListener(){				
+				@Override
+				public void onClick(DialogInterface arg0, int arg1) {			
+
+					// TODO Auto-generated method stub		
+					// set stop 
+					mDeviceScaner.setdoPcmDevicesScan(false); 
+					mDeviceScaner.setdoVideoDevicesScan(false);
+					
+					if(mDeviceScaner.getVideoDevices() != null)
+					{
+						videoID = Integer.parseInt(String.valueOf(mDeviceScaner.getVideoDevices().charAt(5)));
+					}
+					
+					v4l2Preview = new V4l2Preview(PreviewActivity.this, videoID); 	
+					priviewSurface.removeAllViews();
+					priviewSurface.addView(v4l2Preview);	
+								
+				}
+			});
+			builder.create().show();		
 			
 		}	
 		else if(value.equals("AndroidVideo"))

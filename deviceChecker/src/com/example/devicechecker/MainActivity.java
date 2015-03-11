@@ -24,7 +24,8 @@ public class MainActivity extends Activity {
 	private Button manualCheck ; 
 	private Button checkUploadData ; 
 	private Button saveLocalData ;
-
+	
+	private ResultHandler hander = new ResultHandler(MainActivity.this);
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -37,8 +38,8 @@ public class MainActivity extends Activity {
 		// 查找到Button的 id
 		autoCheck = (Button)findViewById(R.id.Button01);
 		manualCheck = (Button)findViewById(R.id.Button02);
-		checkUploadData = (Button)findViewById(R.id.Button03);
-		saveLocalData = (Button)findViewById(R.id.Button04);		
+		checkUploadData = (Button)findViewById(R.id.Button04);
+		saveLocalData = (Button)findViewById(R.id.Button05);		
 						
 		// 定义每一个button所执行的操作
 		// 定义 video 操作
@@ -98,7 +99,17 @@ public class MainActivity extends Activity {
 			
 			@Override
 			public void onClick(View arg0) {
-				// TODO Auto-generated method stub				
+				// TODO Auto-generated method stub	
+				
+				if(hander.upLoadResult())
+				{
+					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+					builder.setTitle("完成文件传输");
+					builder.setMessage("测试结果已上传至服务器\n");
+					builder.setCancelable(false);
+					builder.setPositiveButton("确定",null);
+					builder.create().show();
+				}			
 			}
 		});
 		

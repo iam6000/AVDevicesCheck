@@ -28,5 +28,12 @@ public class DeviceErrorMsg {
 	{			
 		return this.ErrorMsg ;
 	}
+	
+	public void setErrorMSG(String msg, String type, int result)
+	{
+		this.ErrorMsg = msg ; 
+		this.DeviceType = type ; 
+		this.result = result ;
+	}
 		
 }

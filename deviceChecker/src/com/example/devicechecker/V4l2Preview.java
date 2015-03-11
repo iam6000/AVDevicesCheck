@@ -2,6 +2,7 @@ package com.example.devicechecker;
 
 import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.util.Log;
 import android.view.SurfaceHolder;
@@ -17,7 +18,7 @@ public class V4l2Preview extends SurfaceView implements SurfaceHolder.Callback, 
 	protected Context context;
 	private SurfaceHolder holder;
     Thread mainLoop = null;
-	private Bitmap bmp=null;
+	private Bitmap bmp=null;	
 
 	private boolean cameraExists=false;
 	private boolean shouldStop=false;
@@ -52,6 +53,19 @@ public class V4l2Preview extends SurfaceView implements SurfaceHolder.Callback, 
 	public native void pixeltobmp(Bitmap bitmap);
     static {
         System.loadLibrary("v4l2Device");
+    }
+    
+    V4l2Preview(Context context, int videoID)
+    {
+		super(context);
+		this.context = context;
+		if(DEBUG) Log.d("WebCam","CameraPreview constructed");
+		setFocusable(true);
+		cameraId = videoID;
+		
+		holder = getHolder();
+		holder.addCallback(this);
+		holder.setType(SurfaceHolder.SURFACE_TYPE_NORMAL);	
     }
     
 	V4l2Preview(Context context) {
@@ -115,12 +129,13 @@ public class V4l2Preview extends SurfaceView implements SurfaceHolder.Callback, 
 	@Override
 	public void surfaceCreated(SurfaceHolder holder) {
 		System.out.println("new V4l2Preview surfaceCreated!!!");
-		if(DEBUG) Log.d("WebCam", "surfaceCreated");
+		if(DEBUG) Log.d("V4l2", "surfaceCreated");
 		if(bmp==null){
 			bmp = Bitmap.createBitmap(IMG_WIDTH, IMG_HEIGHT, Bitmap.Config.ARGB_8888);
 		}
 		// /dev/videox (x=cameraId + cameraBase) is used
-		mDeviceMsg.DeviceType = "v4l2Device";
+				
+		mDeviceMsg.DeviceType = "v4l2Device";	
 		mDeviceMsg = prepareCameraWithBase(cameraId, cameraBase);
 		
 		if(mDeviceMsg.result!=-1) cameraExists = true;
