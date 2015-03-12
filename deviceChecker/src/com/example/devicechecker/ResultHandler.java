@@ -10,14 +10,27 @@ import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.URL;
 
+import org.apache.http.HttpResponse;
+import org.apache.http.HttpStatus;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.HttpClient;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.impl.client.DefaultHttpClient;
+import org.apache.http.entity.mime.MultipartEntity;
+import org.apache.http.entity.mime.content.ContentBody;
+import org.apache.http.entity.mime.content.FileBody;
+
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.util.Log;
 
 public class ResultHandler {
 	
 	Context mContext; 
-	private String mServerUrl = "http://nj.videochat.skysrt.com:8080/skyvoip/cliparams/commit ";
+	private String mServerUrl = "http://nj.videochat.skysrt.com:8080/skyvoip/cliparams/commit";
 	private String mFileName = "checkResult.txt";
+	String TAG = "ResultHandler";
 
 	public ResultHandler(Context context) {
 		// TODO Auto-generated constructor stub
@@ -28,64 +41,58 @@ public class ResultHandler {
 	// 上传Result 到服务器
 	public boolean  upLoadResult()
 	{	
+		if( !isWifiConnected(mContext) && !isNetworkConnected(mContext) )
+		{
+			return false ;
+		}
+		
 		System.out.println(" try to upLoadResult !!!!!!!!!!!!!!!!");	
-		String BOUNDARY = "---------------------------7db1c523809b2";
-        // 分割线  
-        File file = new File(mFileName);          
-        
-        //http://host:port/xxx/xxx/xxx/param?param1=xxx&param2=xxx
-        String host = mServerUrl + "param" + "?filename=checkResult.txt&fileType=txt";
-        // 用来解析主机名和端口  
-       // URL url = new URL(urlString);  
-        try   
-        {  
-            byte[] after = ("--" + BOUNDARY + "--\r\n").getBytes("UTF-8");  
-              
-            // 构造URL和Connection  
-            URL url = new URL(host);              
-            HttpURLConnection conn = (HttpURLConnection)url.openConnection();  
-              
-            // 设置HTTP协议的头属性  
-            conn.setRequestMethod("POST");  
-            conn.setRequestProperty("Content-Type", "multipart/form-data; boundary=" + BOUNDARY);  
-            conn.setRequestProperty("Content-Length", String.valueOf(file.length()));  
-            conn.setRequestProperty("HOST", url.getHost());  
-            conn.setDoOutput(true);  
-              
-            // 得到Connection的OutputStream流，准备写数据  
-            OutputStream out = conn.getOutputStream();  
-            String fullFileName = getDataPath(mContext,mFileName);
-            InputStream in = new FileInputStream(fullFileName);  
-              
-              
-            // 写文件数据。因为服务器地址已经带有参数了，所以这里只要直接写入文件部分就可以了。  
-            byte[] buf = new byte[1024];  
-            int len;  
-            while ((len = in.read(buf)) != -1)  
-            {  
-                out.write(buf, 0, len);  
-            }               
-  
-            // 数据结束标志，整个HTTP报文就构造结束了。  
-            //out.write(after);  
-  
-            Log.d("carter", "queryParam 返回码为: " + conn.getResponseCode());  
-            Log.d("carter", "queryParam 返回信息为: " + conn.getResponseMessage());  
-            boolean success= conn.getResponseCode() == 200; 
-            in.close();  
-            out.close();         
-            conn.disconnect();  
-            return success ;              
-        }  
-        catch (MalformedURLException e) {  
-            // TODO Auto-generated catch block  
-            e.printStackTrace();          
-            return false ;
-        } catch (IOException e) {  
-            // TODO Auto-generated catch block  
-            e.printStackTrace();  
-            return false;
-        }       
+		// 创建httpClient 
+		HttpClient client = new DefaultHttpClient();
+		// 创建HttpPost实例
+		HttpPost post = new HttpPost(mServerUrl);
+		String fullFilePath =  getDataPath(mContext,mFileName);
+		// 打开记录文件 
+		File resultFile = null ;
+		try{
+			resultFile = new File(fullFilePath);
+		}catch(Exception e){
+			System.out.println(" can not open file!!!!"); 
+			return false ; 			
+		}
+		// 创建ContentBody
+		ContentBody contentBody = new FileBody(resultFile);
+		//MultipartEntity 存储一个contentBody
+		MultipartEntity multipartEntity = new MultipartEntity();
+		multipartEntity.addPart("cliparamsfile", contentBody);
+		post.setEntity(multipartEntity);
+		HttpResponse response = null;
+		try {
+			response = client.execute(post);
+		} catch (ClientProtocolException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			if (resultFile != null) {
+				resultFile.delete();
+			}
+			e.printStackTrace();
+			return false ;
+		}
+		
+		Log.d(TAG, "after client.execute(post)");
+		
+		if (response != null) {
+			if (response.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
+				Log.d(TAG, "HttpStatus.SC_OK");
+				if (resultFile != null) {
+					resultFile.delete();
+				}
+			}
+		}
+		Log.e(TAG, "end");		
+		return true ;
      		
 	}
 	
@@ -93,6 +100,18 @@ public class ResultHandler {
 	// 导出测试数据到U盘
 	public boolean exportResult()
 	{
+		String fullFileName = getDataPath(mContext, mFileName);
+		try{
+			File resultFile = new File(fullFileName);
+			if(resultFile.exists())
+			{
+				
+			}
+		}catch(Exception e){
+			return false ; 
+		}
+		
+		
 		return false ;
 	}
 	
@@ -122,5 +141,34 @@ public class ResultHandler {
 		}
 		return null;
 	}
+	
+	// 判断是否已连接有线
+	public boolean isNetworkConnected(Context context) { 
+		if (context != null) { 
+			ConnectivityManager mConnectivityManager = (ConnectivityManager) context 
+					.getSystemService(Context.CONNECTIVITY_SERVICE); 
+			NetworkInfo mNetworkInfo = mConnectivityManager.getActiveNetworkInfo(); 
+		if (mNetworkInfo != null) { 
+			return mNetworkInfo.isAvailable(); 
+			} 
+		} 
+			return false; 
+	}
+	
+	// 判断是否已连接无线
+	public boolean isWifiConnected(Context context) { 
+		if (context != null) { 
+			ConnectivityManager mConnectivityManager = (ConnectivityManager) context 
+					.getSystemService(Context.CONNECTIVITY_SERVICE); 
+			NetworkInfo mWiFiNetworkInfo = mConnectivityManager 
+					.getNetworkInfo(ConnectivityManager.TYPE_WIFI); 
+		if (mWiFiNetworkInfo != null) { 
+			return mWiFiNetworkInfo.isAvailable(); 
+			} 
+		} 
+		return false; 
+	}
+	
+	
 
 }

@@ -6,6 +6,7 @@ import java.beans.IndexedPropertyChangeEvent;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.StrictMode;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;  
@@ -30,6 +31,10 @@ public class MainActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		// 增加 StrictMode 用于发起http请求
+		StrictMode.setThreadPolicy(new StrictMode.ThreadPolicy.Builder().detectDiskReads().detectDiskWrites().detectNetwork().penaltyLog().build());
+		StrictMode.setVmPolicy(new StrictMode.VmPolicy.Builder().detectLeakedSqlLiteObjects().detectLeakedClosableObjects().penaltyLog().penaltyDeath().build());
+		
 		initTestView();
 	}
 	
@@ -109,7 +114,16 @@ public class MainActivity extends Activity {
 					builder.setCancelable(false);
 					builder.setPositiveButton("确定",null);
 					builder.create().show();
-				}			
+				}
+				else 
+				{
+					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
+					builder.setTitle("文件传输失败");
+					builder.setMessage("文件传输失败，请检查网络\n");
+					builder.setCancelable(false);
+					builder.setPositiveButton("确定",null);
+					builder.create().show();
+				}
 			}
 		});
 		
