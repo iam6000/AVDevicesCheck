@@ -20,7 +20,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
-        android:text="音视频设备预览" />
+        android:text="自动测试" />
 
     <Button
         android:id="@+id/Button02"

@@ -143,13 +143,11 @@ public class manualActivity extends Activity {
 	
 	
 	protected void onDestroy() {
-		// 清掉检测数据
-		ResultHandler  handler = new ResultHandler(manualActivity.this);
-		handler.removeResultFile(); 
+
 		super.onDestroy();
 		// 杀死当前进程
 		
-		android.os.Process.killProcess(android.os.Process.myPid());
+		//android.os.Process.killProcess(android.os.Process.myPid());
 	}
 
 }

@@ -10,6 +10,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.DialogInterface.OnClickListener;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 public class DevicePermissionActivity extends Activity {	
@@ -26,6 +28,7 @@ public class DevicePermissionActivity extends Activity {
 	private TextView mAndroidCameraView ; 
 	private TextView mAudioRecordView ; 
 	private TextView mAudioTrackView ; 
+	private Button  mUpLoadResult ; 
 	
 	
 	private String mICResult ; 
@@ -47,6 +50,7 @@ public class DevicePermissionActivity extends Activity {
 		mAndroidCameraView = (TextView)findViewById(R.id.AndroidVideoName);
 		mAudioRecordView = (TextView)findViewById(R.id.AudioRecordName);
 		mAudioTrackView = (TextView)findViewById(R.id.AudioTrackName);
+		//mUpLoadResult = (Button)findViewById(R.id.uploadDirectly);
 		
 		
 		mDeviceScaner = new DeviceScan(DevicePermissionActivity.this);
@@ -187,10 +191,13 @@ public class DevicePermissionActivity extends Activity {
 					
 				}
 				
+				// upload result silent
+				
 			}
 		});		
 		builder.create().show();	
 		
+			
 	}
 	
 	private String getDataPath(Context context, String fileName) {		
@@ -201,14 +208,23 @@ public class DevicePermissionActivity extends Activity {
 	}
 	
 	
-	protected void onDestroy() {
-		super.onDestroy();
-		android.os.Process.killProcess(android.os.Process.myPid());
-		// 跳转回原activity 并结束当前activity
-		Intent intent = new Intent();
-		intent.setClass(this,manualActivity.class);
-		startActivity(intent);
-		this.finish();
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub	
+		android.os.Process.killProcess(android.os.Process.myPid());	
+		super.onPause();
 	}
+	
+//	protected void onDestroy() {
+//		ResultHandler  handler = new ResultHandler(DevicePermissionActivity.this);
+//		handler.removeResultFile(); 
+//		super.onDestroy();
+//		android.os.Process.killProcess(android.os.Process.myPid());
+//		// 跳转回原activity 并结束当前activity
+//		Intent intent = new Intent();
+//		intent.setClass(this,mContext.getClass());
+//		startActivity(intent);
+//		this.finish();
+//	}
 	
 }

@@ -56,13 +56,16 @@ public class MainActivity extends Activity {
 				LayoutInflater inflater = getLayoutInflater();
 				final View autoLayout = inflater.inflate(R.layout.preview, null); 								
 				// 创建 一个intent ， 用于 进行activity 的跳转 
-				Intent intent = new Intent();
-				// 设置 要跳转的 目标 activity ，从 mainActivity 跳到manualActivity 
-				// use AndroidAV
-				intent.setClass(MainActivity.this, PreviewActivity.class);
-				intent.putExtra("Type","AndroidAV");
-				//启动 目标intent
-				startActivity(intent);						
+//				Intent intent = new Intent();
+//				// 设置 要跳转的 目标 activity ，从 mainActivity 跳到manualActivity 
+//				// use AndroidAV
+//				intent.setClass(MainActivity.this, PreviewActivity.class);
+//				intent.putExtra("Type","AndroidAV");
+//				//启动 目标intent
+//				startActivity(intent);		
+				Intent intent = new Intent(); 
+				intent.setClass(MainActivity.this,DevicePermissionActivity.class );
+				startActivity(intent);		
 				
 			}
 		});
@@ -74,14 +77,13 @@ public class MainActivity extends Activity {
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
 				System.out.println("Button manual test");
-				LayoutInflater inflater = getLayoutInflater();
-				final View manualLayout = inflater.inflate(R.layout.manualtest, null); 								
+				LayoutInflater inflater = getLayoutInflater();										
 				// 创建 一个intent ， 用于 进行activity 的跳转 
 				Intent intent = new Intent();
 				// 设置 要跳转的 目标 activity ，从 mainActivity 跳到manualActivity 
 				intent.setClass(MainActivity.this, manualActivity.class);
 				//启动 目标intent
-				startActivity(intent);							
+				startActivity(intent);						
 					
 				}
 				
@@ -135,5 +137,26 @@ public class MainActivity extends Activity {
 		getMenuInflater().inflate(R.menu.main, menu);
 		return true;
 	}
+	
+	@Override
+	protected void onPause() {
+		// TODO Auto-generated method stub	
+		ResultHandler  handler = new ResultHandler(MainActivity.this);
+		handler.removeResultFile(); 
+		//android.os.Process.killProcess(android.os.Process.myPid());
+		super.onPause();
+	}
+
+	
+//	protected void onDestroy() {
+//		// 清掉检测数据
+//		ResultHandler  handler = new ResultHandler(MainActivity.this);
+//		handler.removeResultFile(); 
+//		super.onDestroy();
+//		// 杀死当前进程
+//		
+//		android.os.Process.killProcess(android.os.Process.myPid());
+//	}
+
 
 }
