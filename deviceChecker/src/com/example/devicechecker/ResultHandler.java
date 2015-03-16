@@ -40,7 +40,7 @@ public class ResultHandler {
 	
 	// 上传Result 到服务器
 	public boolean  upLoadResult()
-	{	
+	{			
 		if( !isWifiConnected(mContext) && !isNetworkConnected(mContext) )
 		{
 			return false ;

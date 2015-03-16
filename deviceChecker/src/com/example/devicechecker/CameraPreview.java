@@ -100,6 +100,7 @@ public class CameraPreview extends SurfaceView implements Callback, Runnable {
         	Log.e(tag, "Camera.CameraInfo()" );
             Camera.CameraInfo info = new Camera.CameraInfo();
             Camera.getCameraInfo(i, info);
+            Log.e(tag,"after get Camera Info\n");
             try{ 
             	 camera = Camera.open(i); 
 			}catch(Exception e){}        

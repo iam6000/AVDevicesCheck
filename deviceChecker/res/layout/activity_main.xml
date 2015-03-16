@@ -36,6 +36,7 @@
        android:layout_height="wrap_content"
        android:layout_below="@+id/Button02"
        android:layout_centerHorizontal="true"
+       android:visibility="invisible" 
        android:text="视频编解码测试" />
 
     <Button
@@ -52,6 +53,7 @@
         android:layout_height="wrap_content"
         android:layout_below="@+id/Button04"
         android:layout_centerHorizontal="true"
+        android:visibility="invisible" 
         android:text="导出测试数据到U盘" />
 
     <ImageView

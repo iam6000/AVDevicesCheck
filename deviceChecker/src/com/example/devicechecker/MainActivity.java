@@ -121,7 +121,7 @@ public class MainActivity extends Activity {
 				{
 					AlertDialog.Builder builder = new AlertDialog.Builder(MainActivity.this);
 					builder.setTitle("文件传输失败");
-					builder.setMessage("文件传输失败，请检查网络\n");
+					builder.setMessage("文件传输失败，请确定是否已经进行设备检测，并检查网络\n");
 					builder.setCancelable(false);
 					builder.setPositiveButton("确定",null);
 					builder.create().show();
