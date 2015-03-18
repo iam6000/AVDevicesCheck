@@ -7,6 +7,6 @@ LOCAL_MODULE := TinyAlsaDevice
 LOCAL_SHARED_LIBRARIES:= libcutils libutils
 LOCAL_LDLIBS    := -llog -ljnigraphics
 LOCAL_MODULE_TAGS := optional
-
+###LOCAl_MULTILIB :=32
 include $(BUILD_SHARED_LIBRARY)
 

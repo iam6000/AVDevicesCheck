@@ -18,6 +18,10 @@ typedef union
     void* venv;
 } UnionJNIEnvToVoid;
 
+jclass record_class ;
+jclass track_class ;
+jobject record ;
+
 /*!
  * //降低难度，直接保存pcm数据，然后使用android层播放
  * 原打算通过jni反调 androidTrack播放
@@ -335,4 +339,147 @@ jobject Java_com_example_devicechecker_DeviceScan_checkDeviceAvailable(JNIEnv* e
 	}
 }
 
+
+// for TEST
+Java_com_example_devicechecker_TinyAlsaAudio_doAndroidAudioRecord(JNIEnv* env,jobject thiz)
+{
+	long count = 1000;
+	FILE *frecord = NULL ;
+	jlong bytesRead;
+	long state ;
+	long sampleFormat = 2 ;
+	long size = 320 ;
+	int tempsize = 1;
+	jlong size_t = 320 ;
+	jbyte* buf;
+	jbyteArray inputBuffer;
+	//bool isDoRecord = true ;
+	long inputBuffSize=0, inputBuffSizePlay, inputBuffSizeRec;
+	jmethodID read_method=0, record_method=0;
+	jmethodID constructor_method=0, get_min_buffer_size_method = 0, method_id = 0;
+
+	record_class = (jclass)(*env)->NewGlobalRef(env,(*env)->FindClass(env,"android/media/AudioRecord"));
+	if (record_class == 0) {
+		goto on_error;
+	}
+
+	get_min_buffer_size_method = (*env)->GetStaticMethodID(env,record_class, "getMinBufferSize", "(III)I");
+	if (get_min_buffer_size_method == 0) {
+				//PJ_LOG(2, (THIS_FILE, "Not able to find audio record getMinBufferSize method"));
+		goto on_error;
+	}
+
+	inputBuffSizeRec = (*env)->CallStaticIntMethod(env,record_class, get_min_buffer_size_method,
+			8000, 2, 2);
+	if(inputBuffSizeRec <= 0){
+				//PJ_LOG(2, (THIS_FILE, "Min buffer size is not a valid value"));
+		goto on_error;
+	}
+
+
+	constructor_method = (*env)->GetMethodID(env,record_class,"<init>", "(IIIII)V");
+	if (constructor_method == 0) {
+		//PJ_LOG(2, (THIS_FILE, "Not able to find audio record class constructor"));
+		goto on_error;
+	}
+
+	record = (*env)->NewObject(env,record_class, constructor_method,
+			1,
+			8000,
+			2, // CHANNEL_CONFIGURATION_MONO
+			2, // 2
+			inputBuffSizeRec);
+
+	if (record == 0) {
+		//PJ_LOG(1, (THIS_FILE, "Not able to instantiate record class"));
+		goto on_error;
+	}
+
+	method_id = (*env)->GetMethodID(env,record_class,"getState", "()I");
+	state = (*env)->CallIntMethod(env,record, method_id);
+
+	if(state == 0 )
+	{
+		goto on_error;
+	}
+
+	read_method = (*env)->GetMethodID(env,record_class,"read", "([BII)I");
+	record_method = (*env)->GetMethodID(env,record_class,"startRecording", "()V");
+	if(read_method==0 || record_method==0) {
+		goto on_error;
+	}
+
+	inputBuffer = (*env)->NewByteArray(env,size);
+	if (inputBuffer == 0) {
+		//PJ_LOG(2, (THIS_FILE, "Not able to allocate a buffer for input read process"));
+		goto on_error;
+	}
+
+	buf = (*env)->GetByteArrayElements(env,inputBuffer, 0);
+	memset(buf, 0, size);
+
+	(*env)->CallVoidMethod(env,record, record_method);
+
+	frecord = fopen("/skydir/audio_record.pcm","wb+");
+	if(frecord == 0)
+	{
+		LOGE("open audio_record.pcm failed\n");
+		goto on_error ;
+	}
+
+
+	// 调用 AudioRecord 记录pcm
+	while(capturing && count--)
+	{
+		LOGE( "Size of jlong  is %d bytes\n", sizeof(size_t));
+		LOGE( "Size of int  is %d bytes\n", sizeof(tempsize));
+		//LOGE("1111\n");
+		memset(buf, 1, size);
+
+		bytesRead = (*env)->CallIntMethod(env,record, read_method,
+					inputBuffer,
+					0,
+					size);
+
+		jsize theArrayLengthJ = (*env)->GetArrayLength(env,inputBuffer);
+
+		LOGE( "Size of theArrayLengthJ  is %d bytes\n", theArrayLengthJ);
+
+		//LOGE("2222\n");
+		if(bytesRead <=0)
+		{
+			continue ;
+		}
+
+		//LOGE("3333\n");
+		if(bytesRead != size)
+		{
+			continue;
+		}
+
+		LOGE("do loop\n");
+		if(frecord)
+		{
+			fwrite( (void*)buf,size, 1 , frecord) ;
+			fflush(frecord);
+		}
+	}
+
+	LOGE("end!!!!\n");
+	if(frecord)
+	{
+		fclose(frecord);
+		frecord = NULL ;
+	}
+
+	return 0 ;
+
+on_error:
+	if(frecord)
+	{
+		fclose(frecord);
+		frecord = NULL ;
+	}
+	return -1 ;
+}
 

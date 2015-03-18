@@ -39,6 +39,7 @@ public class MainActivity extends Activity {
 	}
 	
 	// 定义 button的操作 
+	
 	private void initTestView(){
 		// 查找到Button的 id
 		autoCheck = (Button)findViewById(R.id.Button01);

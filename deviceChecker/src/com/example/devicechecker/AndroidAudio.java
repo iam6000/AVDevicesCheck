@@ -28,8 +28,15 @@ public class AndroidAudio extends AudioDevice {
 		// 用getMinBufferSize()方法得到采集数据所需要的最小缓冲区的大小
 		recBufSize = AudioRecord.getMinBufferSize(frequency,
 						channelConfiguration, audioEncoding);
+		System.out.println("AudioRecord minBufferSize  is " + recBufSize);
+		if( recBufSize < 4096 )
+		{
+			recBufSize = 4096 * 3/2; 
+		}
+		System.out.println("Real AudioRecord minBufferSize  is " + recBufSize);
 		playBufSize = AudioTrack.getMinBufferSize(frequency,
 						channelConfiguration, audioEncoding);
+		System.out.println("AudioTrack minBufferSize  is " + playBufSize);
 		// 实例化AudioRecord(声音来源，采样率，声道设置，采样声音编码，缓存大小）
 		audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, frequency,
 						channelConfiguration, audioEncoding, recBufSize);
@@ -38,7 +45,7 @@ public class AndroidAudio extends AudioDevice {
 						channelConfiguration, audioEncoding, playBufSize,
 						AudioTrack.MODE_STREAM);
 		
-		audioTrack.setStereoVolume(0.7f, 0.7f);	
+		//audioTrack.setStereoVolume(0.7f, 0.7f);	
 		
 		recordAndPlay();
 		
@@ -138,15 +145,18 @@ public class AndroidAudio extends AudioDevice {
 		public void run() {
 			try {
 				// byte 文件来存储声音
-				byte[] buffer = new byte[recBufSize];
+				//byte[] buffer = new byte[recBufSize];
+				byte[] buffer = new byte[320];
 				// 开始采集声音
 				audioRecord.startRecording();
 				// 播放声音
 				audioTrack.play();
 				while (doRecordAndPlay) {
 					// 从MIC存储到缓存区
+//					int bufferReadResult = audioRecord.read(buffer, 0,
+//								recBufSize);
 					int bufferReadResult = audioRecord.read(buffer, 0,
-								recBufSize);
+							320);
 					byte[] tmpBuf = new byte[bufferReadResult];
 					System.arraycopy(buffer, 0, tmpBuf, 0, bufferReadResult);
 					// 播放缓存区的数据

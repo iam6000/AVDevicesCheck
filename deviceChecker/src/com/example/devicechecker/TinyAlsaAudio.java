@@ -52,7 +52,8 @@ public class TinyAlsaAudio extends AudioDevice {
 	//declare JNI native methods
 	public native DeviceErrorMsg checkDeviceAvailable(int CardID, int deviceID);
 	public native void startAudioRecord(int cardID, int deviceID );	
-	public native void stopAudioRecord();	
+	public native void stopAudioRecord();		
+	public native void doAndroidAudioRecord();
 	
 	static {
 	      System.loadLibrary("TinyAlsaDevice");
@@ -309,6 +310,8 @@ public class TinyAlsaAudio extends AudioDevice {
 	public void start()
 	{
 		System.out.println("start TinyAlsaAudio 3333!!!!!!!!!!!!!!!!");	
+		/*
+		System.out.println("start TinyAlsaAudio 3333!!!!!!!!!!!!!!!!");	
 		
 		//起一个线程开始扫描设备
 		new  devicesScanThread().start();
@@ -329,8 +332,9 @@ public class TinyAlsaAudio extends AudioDevice {
 				startRecordAndPlay();									
 			}
 		});		
-		builder.create().show();			
-		
+		builder.create().show();	
+		*/			
+		doAndroidAudioRecord();		
 		
 	}
 	
@@ -341,9 +345,9 @@ public class TinyAlsaAudio extends AudioDevice {
 	public void  stop()
 	{
 		//先停掉 native层线程
-		//stopAudioRecord();
+		stopAudioRecord();
 		// 停掉 AudioTrack播放线程
-		stopAudioPlay(); 		
+		//stopAudioPlay(); 		
 		android.os.Process.killProcess(android.os.Process.myPid());
 		
 	}
