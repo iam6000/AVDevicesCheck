@@ -35,9 +35,8 @@
        android:layout_width="match_parent"
        android:layout_height="wrap_content"
        android:layout_below="@+id/Button02"
-       android:layout_centerHorizontal="true"
-       android:visibility="invisible" 
-       android:text="视频编解码测试" />
+       android:layout_centerHorizontal="true"       
+       android:text="JNI调用AUDIO测试" />
 
     <Button
         android:id="@+id/Button04"

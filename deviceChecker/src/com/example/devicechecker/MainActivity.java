@@ -45,7 +45,7 @@ public class MainActivity extends Activity {
 		autoCheck = (Button)findViewById(R.id.Button01);
 		manualCheck = (Button)findViewById(R.id.Button02);
 		checkUploadData = (Button)findViewById(R.id.Button04);
-		saveLocalData = (Button)findViewById(R.id.Button05);		
+		saveLocalData = (Button)findViewById(R.id.Button03);		
 						
 		// 定义每一个button所执行的操作
 		// 定义 video 操作
@@ -98,6 +98,17 @@ public class MainActivity extends Activity {
 			@Override
 			public void onClick(View arg0) {
 				// TODO Auto-generated method stub
+				// TODO Auto-generated method stub
+				System.out.println("bt_AlsaAudio test !!!!!!!!!!!!!!!!");			
+				// 继续跳转 到下一个activity 
+				// 创建 一个intent ， 用于 进行activity 的跳转 
+				Intent intent = new Intent();
+				// 设置 要跳转的 目标 activity ，从 mainActivity 跳到manualActivity 
+				intent.setClass(MainActivity.this, AudioActivity.class);
+				// 传入数据进去，确定使用哪一种audio，是android设备的还是alsa设备
+				intent.putExtra("Type", "tinyalsa");				
+				//启动 目标intent
+				startActivity(intent);			
 				
 			}
 		});

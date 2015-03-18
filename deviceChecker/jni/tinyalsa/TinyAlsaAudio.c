@@ -339,11 +339,10 @@ jobject Java_com_example_devicechecker_DeviceScan_checkDeviceAvailable(JNIEnv* e
 	}
 }
 
-
 // for TEST
 Java_com_example_devicechecker_TinyAlsaAudio_doAndroidAudioRecord(JNIEnv* env,jobject thiz)
 {
-	long count = 1000;
+	long count = 500;
 	FILE *frecord = NULL ;
 	jlong bytesRead;
 	long state ;
@@ -353,6 +352,7 @@ Java_com_example_devicechecker_TinyAlsaAudio_doAndroidAudioRecord(JNIEnv* env,jo
 	jlong size_t = 320 ;
 	jbyte* buf;
 	jbyteArray inputBuffer;
+	//jshortArray inputBuffer ;
 	//bool isDoRecord = true ;
 	long inputBuffSize=0, inputBuffSizePlay, inputBuffSizeRec;
 	jmethodID read_method=0, record_method=0;
@@ -434,7 +434,7 @@ Java_com_example_devicechecker_TinyAlsaAudio_doAndroidAudioRecord(JNIEnv* env,jo
 		LOGE( "Size of jlong  is %d bytes\n", sizeof(size_t));
 		LOGE( "Size of int  is %d bytes\n", sizeof(tempsize));
 		//LOGE("1111\n");
-		memset(buf, 1, size);
+		memset(buf, 0, size);
 
 		bytesRead = (*env)->CallIntMethod(env,record, read_method,
 					inputBuffer,
