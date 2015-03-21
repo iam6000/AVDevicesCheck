@@ -3,6 +3,7 @@
 
 #define DEBUG_PCM_FILE  0
 #define MAX_ERROR_LENGTH 200
+#define AndroidAudioRecordingClass "com/example/devicechecker/AudioRecordWrapper"
 
 static int capturing = 1;
 FILE* fcapture = NULL ;
@@ -21,6 +22,7 @@ typedef union
 jclass record_class ;
 jclass track_class ;
 jobject record ;
+jobject track ;
 
 /*!
  * //降低难度，直接保存pcm数据，然后使用android层播放
@@ -176,6 +178,7 @@ int devicesIsAvailable(int cardID, int deviceID,char* errorMSG)
 int stopAudioRecord()
 {
 	 capturing = 0 ;
+         return 0;
 }
 
 
@@ -354,60 +357,104 @@ Java_com_example_devicechecker_TinyAlsaAudio_doAndroidAudioRecord(JNIEnv* env,jo
 	jbyteArray inputBuffer;
 	//jshortArray inputBuffer ;
 	//bool isDoRecord = true ;
+	// for audio record
 	long inputBuffSize=0, inputBuffSizePlay, inputBuffSizeRec;
 	jmethodID read_method=0, record_method=0;
-	jmethodID constructor_method=0, get_min_buffer_size_method = 0, method_id = 0;
+	jmethodID record_constructor_method=0, get_min_buffer_record_method = 0, record_method_id = 0;
+	// for audio track
+	long outputBuffSize = 0 , outputBuffSizePlay, outputBuffSizeRec ;
+	jmethodID write_method = 0 ,play_method = 0 ;
+	jmethodID track_constructor_method = 0 , get_min_buffer_track_method = 0 ;
+	jclass tmp = (*env)->FindClass(env,AndroidAudioRecordingClass);
 
-	record_class = (jclass)(*env)->NewGlobalRef(env,(*env)->FindClass(env,"android/media/AudioRecord"));
+	record_class = (jclass)(*env)->NewGlobalRef(env,tmp);
+
+	track_class = (jclass)(*env)->NewGlobalRef(env,(*env)->FindClass(env,"android/media/AudioTrack"));
+
+	//record_class = (jclass)(*env)->NewGlobalRef(env,(*env)->FindClass(env,"android/media/AudioRecord"));
 	if (record_class == 0) {
 		goto on_error;
 	}
 
-	get_min_buffer_size_method = (*env)->GetStaticMethodID(env,record_class, "getMinBufferSize", "(III)I");
-	if (get_min_buffer_size_method == 0) {
+	if(track_class == 0)
+	{
+		goto on_error ;
+	}
+
+	get_min_buffer_record_method = (*env)->GetStaticMethodID(env,record_class, "getMinBufferSize", "(III)I");
+	get_min_buffer_track_method = (*env)->GetStaticMethodID(env,track_class,"getMinBufferSize", "(III)I");
+	if (get_min_buffer_record_method == 0) {
 				//PJ_LOG(2, (THIS_FILE, "Not able to find audio record getMinBufferSize method"));
 		goto on_error;
 	}
+	if(get_min_buffer_track_method == 0 )
+	{
+		goto on_error ;
+	}
 
-	inputBuffSizeRec = (*env)->CallStaticIntMethod(env,record_class, get_min_buffer_size_method,
+	// for track
+	outputBuffSizeRec = (*env)->CallStaticIntMethod(env,track_class, get_min_buffer_track_method,
+			8000, 2, 2);
+	if(outputBuffSizeRec <= 0){
+				//PJ_LOG(2, (THIS_FILE, "Min buffer size is not a valid value"));
+		goto on_error;
+	}
+	track_constructor_method = (*env)->GetMethodID(env,track_class,"<init>", "(IIIIII)V");
+	if (track_constructor_method == 0) {
+		//PJ_LOG(2, (THIS_FILE, "Not able to find audio record class constructor"));
+		goto on_error;
+	}
+	LOGE("init track class\n");
+	track = (*env)->NewObject(env,track_class, track_constructor_method,
+			0,
+			8000,
+			2, // CHANNEL_CONFIGURATION_MONO
+			2, // 2
+			outputBuffSizeRec,
+			1);
+	if (track == 0) {
+		goto on_error;
+	}
+
+	// for record
+	inputBuffSizeRec = (*env)->CallStaticIntMethod(env,record_class, get_min_buffer_record_method,
 			8000, 2, 2);
 	if(inputBuffSizeRec <= 0){
 				//PJ_LOG(2, (THIS_FILE, "Min buffer size is not a valid value"));
 		goto on_error;
 	}
-
-
-	constructor_method = (*env)->GetMethodID(env,record_class,"<init>", "(IIIII)V");
-	if (constructor_method == 0) {
+	record_constructor_method = (*env)->GetMethodID(env,record_class,"<init>", "(IIIII)V");
+	if (record_constructor_method == 0) {
 		//PJ_LOG(2, (THIS_FILE, "Not able to find audio record class constructor"));
 		goto on_error;
 	}
-
-	record = (*env)->NewObject(env,record_class, constructor_method,
+	LOGE("init record class\n");
+	record = (*env)->NewObject(env,record_class, record_constructor_method,
 			1,
 			8000,
 			2, // CHANNEL_CONFIGURATION_MONO
 			2, // 2
 			inputBuffSizeRec);
-
 	if (record == 0) {
 		//PJ_LOG(1, (THIS_FILE, "Not able to instantiate record class"));
 		goto on_error;
 	}
 
-	method_id = (*env)->GetMethodID(env,record_class,"getState", "()I");
-	state = (*env)->CallIntMethod(env,record, method_id);
-
+	record_method_id = (*env)->GetMethodID(env,record_class,"getState", "()I");
+	state = (*env)->CallIntMethod(env,record, record_method_id);
 	if(state == 0 )
 	{
 		goto on_error;
 	}
-
+	LOGE("get read method\n");
 	read_method = (*env)->GetMethodID(env,record_class,"read", "([BII)I");
 	record_method = (*env)->GetMethodID(env,record_class,"startRecording", "()V");
 	if(read_method==0 || record_method==0) {
 		goto on_error;
 	}
+	LOGE("do write method\n");
+	write_method = (*env)->GetMethodID(env,track_class,"write", "([BII)I");
+	play_method = (*env)->GetMethodID(env,track_class,"play", "()V");
 
 	inputBuffer = (*env)->NewByteArray(env,size);
 	if (inputBuffer == 0) {
@@ -415,10 +462,12 @@ Java_com_example_devicechecker_TinyAlsaAudio_doAndroidAudioRecord(JNIEnv* env,jo
 		goto on_error;
 	}
 
-	buf = (*env)->GetByteArrayElements(env,inputBuffer, 0);
-	memset(buf, 0, size);
+	//buf = (*env)->GetByteArrayElements(env,inputBuffer, 0);
+	//memset(buf, 0, size);
 
 	(*env)->CallVoidMethod(env,record, record_method);
+
+	(*env)->CallVoidMethod(env,track, play_method);
 
 	frecord = fopen("/skydir/audio_record.pcm","wb+");
 	if(frecord == 0)
@@ -434,16 +483,19 @@ Java_com_example_devicechecker_TinyAlsaAudio_doAndroidAudioRecord(JNIEnv* env,jo
 		LOGE( "Size of jlong  is %d bytes\n", sizeof(size_t));
 		LOGE( "Size of int  is %d bytes\n", sizeof(tempsize));
 		//LOGE("1111\n");
-		memset(buf, 0, size);
 
 		bytesRead = (*env)->CallIntMethod(env,record, read_method,
 					inputBuffer,
 					0,
 					size);
 
+
 		jsize theArrayLengthJ = (*env)->GetArrayLength(env,inputBuffer);
 
-		LOGE( "Size of theArrayLengthJ  is %d bytes\n", theArrayLengthJ);
+        jbyte *bytes = (*env)->GetByteArrayElements(env,inputBuffer, NULL);
+        LOGE( "get Arrary Size is %d bytes\n", theArrayLengthJ);
+
+        //ALOGE("read in jni 0 is:%d,123:%d  299:%d",bytes[0],bytes[123],bytes[229]);
 
 		//LOGE("2222\n");
 		if(bytesRead <=0)
@@ -460,9 +512,17 @@ Java_com_example_devicechecker_TinyAlsaAudio_doAndroidAudioRecord(JNIEnv* env,jo
 		LOGE("do loop\n");
 		if(frecord)
 		{
-			fwrite( (void*)buf,size, 1 , frecord) ;
+			fwrite( (void*)bytes,size, 1 , frecord) ;
 			fflush(frecord);
 		}
+		//send it to AudioTrack!!
+		LOGE("do Track\n");
+		int status =  (*env)->CallIntMethod(env,track, write_method,
+						inputBuffer,
+						0,
+						size);
+		LOGE("Track return status!!!" + status);
+        (*env)->ReleaseByteArrayElements(env,inputBuffer, bytes, 0);
 	}
 
 	LOGE("end!!!!\n");
@@ -482,4 +542,17 @@ on_error:
 	}
 	return -1 ;
 }
+
+// test for use native recevice pcm data
+/*
+Java_com_example_devicechecker_AudioRecordWrapper_doSendPcm(JNIEnv* env,jobject thiz,jbyteArray javaFrame,jint length)
+{
+	 jbyte* pcmFrames = (*env)->GetByteArrayElements(env,javaFrame, NULL);
+	 //buffer =  reinterpret_cast<uint8_t*>(pcmFrames);
+	 localBuffer = (uint8_t*)(pcmFrames);
+	 memcpy(localBuffer,pcmBuffer,length);
+	 // save pcm buffers
+	 (*env)->ReleaseByteArrayElements(env,javaFrame, pcmFrames, JNI_ABORT);
+}
+*/
 
