@@ -3,29 +3,44 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical" >
-<TextView
-    android:id="@+id/textView1"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="视频预览" >
-</TextView>
 
-<FrameLayout
-    android:id="@+id/previewsurfaceView"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:layout_weight="0.62" />
+    <TextView
+        android:id="@+id/textView1"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="视频预览" >
+    </TextView>
 
-<Button
-    android:id="@+id/VideoIsOK"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="设备正常" />
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" >
 
-<Button
-    android:id="@+id/VideoIsNotOK"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:text="设备异常" />
+        <FrameLayout
+            android:id="@+id/previewsurfaceView01"
+            android:layout_width="wrap_content"
+            android:layout_height="480dp"
+            android:layout_weight="0.11" >
+        </FrameLayout>
+
+        <FrameLayout
+            android:id="@+id/previewsurfaceView"
+            android:layout_width="wrap_content"
+            android:layout_height="480dp"
+            android:layout_weight="0.11" >
+        </FrameLayout>
+
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/VideoIsOK"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="设备正常" />
+
+    <Button
+        android:id="@+id/VideoIsNotOK"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="设备异常" />
 
 </LinearLayout>

@@ -47,15 +47,15 @@ void savePcm(char* pcmBuffer)
 /*!
  *  startAudioRecord 开始记录采集到的pcm数据
  */
-int startAudioRecord(int card_id , int device_id)
+int startAudioRecord(int card_id , int device_id ,int jChannels , int JRate, int Jperiod_size, int Jperiod_count )
 {
 	unsigned int card = card_id;
 	unsigned int device = device_id ;
-	unsigned int channels = 1;
-	unsigned int rate = 8000 ;
+	unsigned int channels = jChannels;
+	unsigned int rate = JRate ;
 	unsigned int frames ;
-	unsigned int period_size = 1024 ;
-	unsigned int period_count = 4 ;
+	unsigned int period_size = Jperiod_size ;
+	unsigned int period_count = Jperiod_count ;
 	enum pcm_format  format = PCM_FORMAT_S16_LE;
 
 	struct pcm_config  config ;
@@ -76,6 +76,12 @@ int startAudioRecord(int card_id , int device_id)
     config.silence_threshold = 0;
 
     // 打开pcm设备文件
+    LOGE( "open pcm channel is (%d)\t, Rate is (%d) \t , period_size is (%d)\t , period_count is ( %d)\t ,format is (%d) bytes\n",
+    		config.channels,
+    		config.rate ,
+    		config.period_size ,
+    		config.period_count,
+    		config.format);
     pcm  = pcm_open(card, device,PCM_IN, &config);
     if(!pcm ||(!pcm_is_ready(pcm)))
     {
@@ -127,16 +133,17 @@ int startAudioRecord(int card_id , int device_id)
 /*!
  *  check devices Available
  *  do check wheather device is useable , if not useable ,return -1 and errorMSG, else return 0
+ *  int card_id , int device_id ,int jChannels , int JRate, int Jperiod_size, int Jperiod_count
  */
-int devicesIsAvailable(int cardID, int deviceID,char* errorMSG)
+int devicesIsAvailable(int cardID, int deviceID,int jChannels , int JRate, int Jperiod_size, int Jperiod_count ,char* errorMSG)
 {
 	unsigned int card = cardID;
 	unsigned int device = deviceID ;
-	unsigned int channels = 1;
-	unsigned int rate = 8000 ;
+	unsigned int channels = jChannels;
+	unsigned int rate = JRate ;
 	unsigned int frames ;
-	unsigned int period_size = 1024 ;
-	unsigned int period_count = 4 ;
+	unsigned int period_size = Jperiod_size ;
+	unsigned int period_count = Jperiod_count ;
 	enum pcm_format  format = PCM_FORMAT_S16_LE;
 
 	struct pcm_config  config ;
@@ -150,6 +157,12 @@ int devicesIsAvailable(int cardID, int deviceID,char* errorMSG)
     config.period_count = period_count;
     config.format = format;
 
+    LOGE( "open pcm channel is (%d)\t, Rate is (%d) \t , period_size is (%d)\t , period_count is ( %d)\t ,format is (%d) %d bytes\n",
+     		config.channels,
+     		config.rate ,
+     		config.period_size ,
+     		config.period_count,
+     		config.format);
     // 打开pcm设备文件
     pcm  = pcm_open(card, device,PCM_IN, &config);
     if(!pcm ||(!pcm_is_ready(pcm)))
@@ -183,10 +196,17 @@ int stopAudioRecord()
 
 
 /*-----------jni funcs belows ------------*/
-Java_com_example_devicechecker_TinyAlsaAudio_startAudioRecord(JNIEnv* env,jobject thiz, jint cardID, jint deviceID)
+Java_com_example_devicechecker_TinyAlsaAudio_startAudioRecord(JNIEnv* env,
+																jobject thiz,
+																jint cardID,
+																jint deviceID,
+																jint JChannels,
+																jint JRate,
+																jint JperiodSize,
+																jint JperiodCount)
 {
-	// this will be a dead loop, change it to control able
-	startAudioRecord(cardID, deviceID);
+	// this will be a dead loop, change it to control able int jChannels , int JRate, int Jperiod_size, int Jperiod_count
+	startAudioRecord(cardID, deviceID,JChannels,JRate,JperiodSize,JperiodCount);
 }
 
 // stop RecordThread
@@ -198,7 +218,14 @@ Java_com_example_devicechecker_TinyAlsaAudio_stopAudioRecord(JNIEnv* env,jobject
 }
 
 
-jobject Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable(JNIEnv* env,jobject thiz, jint cardID, jint deviceID)
+jobject Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable(JNIEnv* env,
+									jobject thiz,
+									jint cardID,
+									jint deviceID,
+									jint jChannels,
+									jint JRate,
+									jint Jperiod_size,
+									jint Jperiod_count)
 {
 	LOGE("Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable\n");
 	//  test begin
@@ -221,8 +248,8 @@ jobject Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable(JNIEnv
 	//--- test end
 	memset(errorMSG, 0,MAX_ERROR_LENGTH*sizeof(char));
 	LOGE("Before check Devices\n");
-
-	deviceIsOk = devicesIsAvailable(cardID, deviceID,errorMSG);
+    //int cardID, int deviceID,int jChannels , int JRate, int Jperiod_size, int Jperiod_count ,char* errorMSG
+	deviceIsOk = devicesIsAvailable(cardID, deviceID, jChannels,JRate,Jperiod_size, Jperiod_count,errorMSG);
 	LOGE("Get Result is %d",deviceIsOk);
 	LOGE("Get MSG %s",errorMSG);
 	// if(!deviceIsOk)  if use if(!deviceIsOk)  will be error
@@ -271,7 +298,14 @@ jobject Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable(JNIEnv
 
 
 // just try it
-jobject Java_com_example_devicechecker_DeviceScan_checkDeviceAvailable(JNIEnv* env,jobject thiz, jint cardID, jint deviceID)
+jobject Java_com_example_devicechecker_DeviceScan_checkDeviceAvailable(JNIEnv* env,
+																		jobject thiz,
+																		jint cardID,
+																		jint deviceID,
+																		jint jChannels,
+																		jint JRate,
+																		jint Jperiod_size,
+																		jint Jperiod_count)
 {
 	LOGE("Java_com_example_devicechecker_TinyAlsaAudio_checkDeviceAvailable\n");
 	//  test begin
@@ -295,7 +329,7 @@ jobject Java_com_example_devicechecker_DeviceScan_checkDeviceAvailable(JNIEnv* e
 	memset(errorMSG, 0,MAX_ERROR_LENGTH*sizeof(char));
 	LOGE("Before check Devices\n");
 
-	deviceIsOk = devicesIsAvailable(cardID, deviceID,errorMSG);
+	deviceIsOk = devicesIsAvailable(cardID, deviceID,jChannels, JRate,Jperiod_size,Jperiod_count,errorMSG);
 	LOGE("Get Result is %d",deviceIsOk);
 	LOGE("Get MSG %s",errorMSG);
 	// if(!deviceIsOk)  if use if(!deviceIsOk)  will be error
@@ -555,4 +589,146 @@ Java_com_example_devicechecker_AudioRecordWrapper_doSendPcm(JNIEnv* env,jobject 
 	 (*env)->ReleaseByteArrayElements(env,javaFrame, pcmFrames, JNI_ABORT);
 }
 */
+// test for only Track!!!
+/*
+Java_com_example_devicechecker_TinyAlsaAudio_doAndroidTrack(JNIEnv* env,jobject thiz)
+{
 
+	long count = 500;
+	FILE *frecord = NULL ;
+	jlong bytesRead;
+	long state ;
+	long sampleFormat = 2 ;
+	long size = 320 ;
+	int tempsize = 1;
+	jlong size_t = 320 ;
+	jbyte* buf;
+	jbyteArray inputBuffer;
+	//jshortArray inputBuffer ;
+	//bool isDoRecord = true ;
+	// for audio record
+	long outputBuffSize = 0 , outputBuffSizePlay, outputBuffSizeRec ;
+	jmethodID play_method = 0 ;
+	jmethodID track_constructor_method = 0 , get_min_buffer_track_method = 0 ;
+
+	track_class = (jclass)(*env)->NewGlobalRef(env,(*env)->FindClass(env,"android/media/AudioTrack"));
+
+
+	if(track_class == 0)
+	{
+		goto on_error ;
+	}
+
+	get_min_buffer_track_method = (*env)->GetStaticMethodID(env,track_class,"getMinBufferSize", "(III)I");
+	if (get_min_buffer_record_method == 0) {
+		goto on_error;
+	}
+	if(get_min_buffer_track_method == 0 )
+	{
+		goto on_error ;
+	}
+
+	// for track
+	outputBuffSizeRec = (*env)->CallStaticIntMethod(env,track_class, get_min_buffer_track_method,
+			8000, 2, 2);
+	if(outputBuffSizeRec <= 0){
+				//PJ_LOG(2, (THIS_FILE, "Min buffer size is not a valid value"));
+		goto on_error;
+	}
+	track_constructor_method = (*env)->GetMethodID(env,track_class,"<init>", "(IIIIII)V");
+	if (track_constructor_method == 0) {
+		//PJ_LOG(2, (THIS_FILE, "Not able to find audio record class constructor"));
+		goto on_error;
+	}
+	LOGE("init track class\n");
+	track = (*env)->NewObject(env,track_class, track_constructor_method,
+			0,
+			8000,
+			2, // CHANNEL_CONFIGURATION_MONO
+			2, // 2
+			outputBuffSizeRec,
+			1);
+	if (track == 0) {
+		goto on_error;
+	}
+
+	LOGE("do write method\n");
+	write_method = (*env)->GetMethodID(env,track_class,"write", "([BII)I");
+	play_method = (*env)->GetMethodID(env,track_class,"play", "()V");
+	inputBuffer = (*env)->NewByteArray(env,size);
+	if (inputBuffer == 0) {
+		//PJ_LOG(2, (THIS_FILE, "Not able to allocate a buffer for input read process"));
+		goto on_error;
+	}
+
+	(*env)->CallVoidMethod(env,track, play_method);
+
+	frecord = fopen("/skydir/audio_record.pcm","wb+");
+	if(frecord == 0)
+	{
+		LOGE("open audio_record.pcm failed\n");
+		goto on_error ;
+	}
+
+
+	// 调用 AudioRecord 记录pcm
+	while(capturing && count--)
+	{
+		LOGE( "Size of jlong  is %d bytes\n", sizeof(size_t));
+		LOGE( "Size of int  is %d bytes\n", sizeof(tempsize));
+		//LOGE("1111\n");
+
+		jsize theArrayLengthJ = (*env)->GetArrayLength(env,inputBuffer);
+
+        jbyte *bytes = (*env)->GetByteArrayElements(env,inputBuffer, NULL);
+        LOGE( "get Arrary Size is %d bytes\n", theArrayLengthJ);
+
+        //ALOGE("read in jni 0 is:%d,123:%d  299:%d",bytes[0],bytes[123],bytes[229]);
+
+		//LOGE("2222\n");
+		if(bytesRead <=0)
+		{
+			continue ;
+		}
+
+		//LOGE("3333\n");
+		if(bytesRead != size)
+		{
+			continue;
+		}
+
+		LOGE("do loop\n");
+		if(frecord)
+		{
+			fwrite( (void*)bytes,size, 1 , frecord) ;
+			fflush(frecord);
+		}
+		//send it to AudioTrack!!
+		LOGE("do Track\n");
+		int status =  (*env)->CallIntMethod(env,track, write_method,
+						inputBuffer,
+						0,
+						size);
+		LOGE("Track return status!!!" + status);
+        (*env)->ReleaseByteArrayElements(env,inputBuffer, bytes, 0);
+	}
+
+	LOGE("end!!!!\n");
+	if(frecord)
+	{
+		fclose(frecord);
+		frecord = NULL ;
+	}
+
+	return 0 ;
+
+on_error:
+	if(frecord)
+	{
+		fclose(frecord);
+		frecord = NULL ;
+	}
+	return -1 ;
+
+}
+*/

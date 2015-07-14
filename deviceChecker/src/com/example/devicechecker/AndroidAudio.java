@@ -76,7 +76,7 @@ public class AndroidAudio extends AudioDevice {
 	{
 		DeviceErrorMsg  errorInfo = new DeviceErrorMsg() ;
 		recBufSize = AudioRecord.getMinBufferSize(frequency,
-				channelConfiguration, audioEncoding);
+				channelConfiguration, 3);
 		
 		try{
 			// 实例化AudioRecord(声音来源，采样率，声道设置，采样声音编码，缓存大小）

@@ -41,8 +41,11 @@ public class TinyAlsaAudio extends AudioDevice {
 	private  AudioTrack mAudioTrack; 
 	private InputStream pcmInputStream = null ;
 	int mPlayBuff = 0 ;
+	int mSampleRate = 8000 ;
 	int mSampleBit = 16 ;
 	int mAudioChannel = 1; 
+	int mPeriodSize = 160 ;
+	int mperiodCount = 4; 
 	
 	
 	List<String> lastScanResult = new ArrayList<String>();
@@ -50,8 +53,9 @@ public class TinyAlsaAudio extends AudioDevice {
 	List<String> targetScanResult = new ArrayList<String>();
 	
 	//declare JNI native methods
-	public native DeviceErrorMsg checkDeviceAvailable(int CardID, int deviceID);
-	public native void startAudioRecord(int cardID, int deviceID );	
+	//int cardID, int deviceID,int jChannels , int JRate, int Jperiod_size, int Jperiod_count ,char* errorMSG
+	public native DeviceErrorMsg checkDeviceAvailable(int CardID, int deviceID , int JChannels, int  JRate , int  JperiodSize,int JperiodCount);
+	public native void startAudioRecord(int cardID, int deviceID , int JChannels, int  JRate , int  JperiodSize,int JperiodCount );
 	public native void stopAudioRecord();		
 	public native void doAndroidAudioRecord();
 	
@@ -249,7 +253,7 @@ public class TinyAlsaAudio extends AudioDevice {
 			
 			// 先检测 设备权限，若没权限 直接返回 
 			
-			mDeviceMsg  = checkDeviceAvailable(CardId,DeviceId);
+			mDeviceMsg  = checkDeviceAvailable(CardId,DeviceId, mAudioChannel,mSampleRate,mPeriodSize,mperiodCount);
 			if(mDeviceMsg.isErrorHappen())
 			{
 				// do Error 处理 并且return  
@@ -310,7 +314,7 @@ public class TinyAlsaAudio extends AudioDevice {
 	public void start()
 	{
 		System.out.println("start TinyAlsaAudio 3333!!!!!!!!!!!!!!!!");	
-		/*
+		
 		System.out.println("start TinyAlsaAudio 3333!!!!!!!!!!!!!!!!");	
 		
 		//起一个线程开始扫描设备
@@ -333,8 +337,8 @@ public class TinyAlsaAudio extends AudioDevice {
 			}
 		});		
 		builder.create().show();	
-		*/			
-		doAndroidAudioRecord();		
+			
+		// doAndroidAudioRecord();		
 		
 	}
 	
@@ -383,7 +387,7 @@ public class TinyAlsaAudio extends AudioDevice {
 			public void run() {
 				try{
 					//启动 alsaAudio线程 调用JNI func
-					startAudioRecord(CardId,DeviceId);						
+					startAudioRecord(CardId,DeviceId,mAudioChannel,mSampleRate,mPeriodSize,mperiodCount);						
 				}catch(Throwable t){
 					Toast.makeText(mContext, t.getMessage(), 1000);
 				}

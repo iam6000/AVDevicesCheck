@@ -29,10 +29,14 @@ public class CameraPreview extends SurfaceView implements Callback, Runnable {
 	private SurfaceHolder holder;
     Thread mainLoop = null;
     Camera camera = null;
+    int mCameraID = 0 ;
+   
+   
 
-	public CameraPreview(Context context) {		
+	public CameraPreview(Context context,int cameraID) {		
 		super(context);
 		this.context = context;
+		mCameraID = cameraID; 
 		if(DEBUG) Log.d("WebCam","CameraPreview constructed");
 		setFocusable(true);		
 		holder = getHolder();
@@ -97,13 +101,39 @@ public class CameraPreview extends SurfaceView implements Callback, Runnable {
         // 仅打开一个摄像头
         for(int i = 0 ; i < Camera.getNumberOfCameras(); ++i)
         {
-        	Log.e(tag, "Camera.CameraInfo()" );
-            Camera.CameraInfo info = new Camera.CameraInfo();
-            Camera.getCameraInfo(i, info);
-            Log.e(tag,"after get Camera Info\n");
-            try{ 
-            	 camera = Camera.open(i); 
-			}catch(Exception e){}        
+        	if( i == 0 && mCameraID == 0 )
+        	{
+            	Log.e(tag, "Camera.CameraInfo()" );
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.getCameraInfo(i, info);
+                Log.e(tag,"after get Camera Info\n");
+                try{ 
+                	 camera = Camera.open(i); 
+    			}catch(Exception e){}    
+                break ;
+        	}
+        	if(i == 1 && mCameraID == 1)
+        	{
+            	Log.e(tag, "Camera.CameraInfo()" );
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.getCameraInfo(i, info);
+                Log.e(tag,"after get Camera Info\n");
+                try{ 
+                	 camera = Camera.open(i); 
+    			}catch(Exception e){}   
+                break ;
+        	}
+        	if(i == 2 && mCameraID == 2)
+        	{
+            	Log.e(tag, "Camera.CameraInfo()" );
+                Camera.CameraInfo info = new Camera.CameraInfo();
+                Camera.getCameraInfo(i, info);
+                Log.e(tag,"after get Camera Info\n");
+                try{ 
+                	 camera = Camera.open(i); 
+    			}catch(Exception e){}   
+                break ;
+        	}
            
         }
 
@@ -117,10 +147,6 @@ public class CameraPreview extends SurfaceView implements Callback, Runnable {
 			camera.stopPreview(); 
 			camera.release(); 
 			camera = null ;
-		}
-		else 
-		{
-			// 写入cameraError 信息
 		}
 	}
 

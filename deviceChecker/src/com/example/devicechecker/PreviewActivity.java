@@ -19,7 +19,11 @@ public class PreviewActivity extends Activity {
 	private Button deviceIsOK ; 
 	private Button deviceIsNotOK;
 	private FrameLayout priviewSurface;
+	private FrameLayout priviewSurface1;
+	private FrameLayout priviewSurface2;
 	private CameraPreview camPreview ; 
+	private V4l2Preview camPreview1 ; 
+	private V4l2Preview camPreview2 ; 
 	private V4l2Preview v4l2Preview ; 
 	private AndroidAVTest androidAVTest ; 	
 	private String devicetype ;
@@ -33,7 +37,8 @@ public class PreviewActivity extends Activity {
 		deviceIsOK = (Button)findViewById(R.id.VideoIsOK); 
 		deviceIsNotOK = (Button)findViewById(R.id.VideoIsNotOK);
 		priviewSurface = (FrameLayout)findViewById(R.id.previewsurfaceView);
-		
+		priviewSurface1 = (FrameLayout)findViewById(R.id.previewsurfaceView01);		
+		//priviewSurface2 = (FrameLayout)findViewById(R.id.previewsurfaceView02);
 	}
 	
 	
@@ -95,9 +100,15 @@ public class PreviewActivity extends Activity {
 			// android  ”∆µ≤‚ ‘
 			System.out.println("new CameraPreview !!!!!!!!!!!!!!!!");
 			devicetype = "Android Camera Video device";
-			camPreview = new CameraPreview(this);	
+			camPreview = new CameraPreview(this,0);	
+			camPreview1  = new V4l2Preview(PreviewActivity.this, 1);	
+			//camPreview2  = new V4l2Preview(PreviewActivity.this, 2);
 			priviewSurface.removeAllViews();
-			priviewSurface.addView(camPreview);					
+			priviewSurface.addView(camPreview);		
+			priviewSurface1.removeAllViews();
+			priviewSurface1.addView(camPreview1);	
+			//priviewSurface2.removeAllViews();
+			//priviewSurface2.addView(camPreview2);	
 		}	
 		else if(value.equals("AndroidAV"))
 		{
