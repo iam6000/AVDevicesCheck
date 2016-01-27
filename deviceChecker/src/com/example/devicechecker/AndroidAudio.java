@@ -38,8 +38,10 @@ public class AndroidAudio extends AudioDevice {
 						channelConfiguration, audioEncoding);
 		System.out.println("AudioTrack minBufferSize  is " + playBufSize);
 		// 实例化AudioRecord(声音来源，采样率，声道设置，采样声音编码，缓存大小）
-		audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, frequency,
-						channelConfiguration, audioEncoding, recBufSize);
+		//audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, frequency,
+		//				channelConfiguration, audioEncoding, recBufSize);
+		audioRecord = new AudioRecord(MediaRecorder.AudioSource.CAMCORDER, frequency,
+				channelConfiguration, audioEncoding, recBufSize);
 		// 实例化 AudioTrack 播放声音
 		audioTrack = new AudioTrack(AudioManager.STREAM_MUSIC, frequency,
 						channelConfiguration, audioEncoding, playBufSize,

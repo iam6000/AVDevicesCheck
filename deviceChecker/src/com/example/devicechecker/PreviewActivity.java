@@ -14,7 +14,7 @@ import android.widget.FrameLayout;
 
 public class PreviewActivity extends Activity {
 	
-	// ¸ù¾Ý²»Í¬µÄÌõ¼þ£¬´´½¨²»Í¬µÄPreviewÀà£¬²¢ÇÒ½øÐÐpreviewµÄÕ¹Ê¾
+	// ï¿½ï¿½Ý²ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í¬ï¿½ï¿½Previewï¿½à£¬ï¿½ï¿½ï¿½Ò½ï¿½ï¿½ï¿½previewï¿½ï¿½Õ¹Ê¾
 	protected Context mContext;
 	private Button deviceIsOK ; 
 	private Button deviceIsNotOK;
@@ -45,19 +45,19 @@ public class PreviewActivity extends Activity {
 	protected void onCreate(Bundle savedInstanceState) {	
 		super.onCreate(savedInstanceState);
 		
-		// ÔØÈë preview view !!!
+		// ï¿½ï¿½ï¿½ï¿½ preview view !!!
 		setContentView(R.layout.preview);
 		mContext = PreviewActivity.this;
 		System.out.println("PrviewActivity  onCreate !!!!!!!!!!!!!!!!");			
 		initViews();
 				
 		Intent intent = this.getIntent(); 
-		// »ñÈ¡ ´«ÈëµÄÊý¾Ý£¬²¢ÅÐ¶Ï³õÊ¼»¯ÄÄÒ»ÖÖÉè±¸
+		// ï¿½ï¿½È¡ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ý£ï¿½ï¿½ï¿½ï¿½Ð¶Ï³ï¿½Ê¼ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½è±¸
 		Bundle bundle = intent.getExtras();
 		String value = bundle.getString("Type");		
 		if(value.equals("v4l2Video"))
 		{
-			// v4l2 ÊÓÆµ²âÊÔ
+			// v4l2 ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½
 			System.out.println("new V4l2Preview !!!!!!!!!!!!!!!!");	
 			devicetype = "linux V4l2 Video deivce";
 			// do check device Id  
@@ -67,17 +67,18 @@ public class PreviewActivity extends Activity {
 			mDeviceScaner.beginScan() ; 				
 						
 			AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-			builder.setTitle("USBÉè±¸²Ù×÷");
-			builder.setMessage("ÇëÍê³ÉÒ»´ÎÉãÏñÍ·°Î²å²Ù×÷£¡\n ÈôÉãÏñÍ·ÒÑ²åÉÏ£¬Çë°Îµô£¬ÔÙ²åÉÏ\n ÈôÉãÏñÍ·Î´²åÉÏ£¬ÇëÖ±½Ó²åÉÏ\n");
+			builder.setTitle("USBï¿½è±¸ï¿½ï¿½ï¿½ï¿½");
+			builder.setMessage("ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½Î²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\n ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½Ñ²ï¿½ï¿½Ï£ï¿½ï¿½ï¿½Îµï¿½ï¿½ï¿½ï¿½Ù²ï¿½ï¿½ï¿½\n ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·Î´ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½Ö±ï¿½Ó²ï¿½ï¿½ï¿½\n");
 			builder.setCancelable(false);	
 
 			
-			builder.setPositiveButton("ÒÑÍê³É²å°Î²Ù×÷£¬²¢ÒÑ²åÉÏÉãÏñÍ·", new DialogInterface.OnClickListener(){				
+			builder.setPositiveButton("ï¿½ï¿½ï¿½ï¿½É²ï¿½Î²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·", new DialogInterface.OnClickListener(){				
 				@Override
 				public void onClick(DialogInterface arg0, int arg1) {			
 
 					// TODO Auto-generated method stub		
 					// set stop 
+					/*
 					mDeviceScaner.setdoPcmDevicesScan(false); 
 					mDeviceScaner.setdoVideoDevicesScan(false);
 					
@@ -85,8 +86,9 @@ public class PreviewActivity extends Activity {
 					{
 						videoID = Integer.parseInt(String.valueOf(mDeviceScaner.getVideoDevices().charAt(5)));
 					}
-					
-					v4l2Preview = new V4l2Preview(PreviewActivity.this, videoID); 	
+					*/
+					//v4l2Preview = new V4l2Preview(PreviewActivity.this, videoID); 	
+					v4l2Preview = new V4l2Preview(PreviewActivity.this, 0); 
 					priviewSurface.removeAllViews();
 					priviewSurface.addView(v4l2Preview);	
 								
@@ -97,22 +99,22 @@ public class PreviewActivity extends Activity {
 		}	
 		else if(value.equals("AndroidVideo"))
 		{
-			// android ÊÓÆµ²âÊÔ
+			// android ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½
 			System.out.println("new CameraPreview !!!!!!!!!!!!!!!!");
 			devicetype = "Android Camera Video device";
 			camPreview = new CameraPreview(this,0);	
-			camPreview1  = new V4l2Preview(PreviewActivity.this, 1);	
+			//camPreview1  = new V4l2Preview(PreviewActivity.this, 1);	
 			//camPreview2  = new V4l2Preview(PreviewActivity.this, 2);
 			priviewSurface.removeAllViews();
 			priviewSurface.addView(camPreview);		
-			priviewSurface1.removeAllViews();
-			priviewSurface1.addView(camPreview1);	
+			//priviewSurface1.removeAllViews();
+			//priviewSurface1.addView(camPreview1);	
 			//priviewSurface2.removeAllViews();
 			//priviewSurface2.addView(camPreview2);	
 		}	
 		else if(value.equals("AndroidAV"))
 		{
-			// Android ÒôÊÓÆµ²âÊÔ
+			// Android ï¿½ï¿½ï¿½ï¿½Æµï¿½ï¿½ï¿½ï¿½
 			System.out.println("new AndroidAV Preview !!!!!!!!!!!!!!!!");	
 			devicetype = "Android Camera Video and Audio device";
 			androidAVTest = new AndroidAVTest(this);
@@ -165,7 +167,7 @@ public class PreviewActivity extends Activity {
 	protected void onDestroy() {
 		super.onDestroy();
 		android.os.Process.killProcess(android.os.Process.myPid());
-		// Ìø×ª»ØÔ­activity ²¢½áÊøµ±Ç°activity
+		// ï¿½ï¿½×ªï¿½ï¿½Ô­activity ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ç°activity
 		Intent intent = new Intent();
 		intent.setClass(this,manualActivity.class);
 		startActivity(intent);

@@ -39,6 +39,7 @@ public class AudioActivity extends Activity {
 		String value = bundle.getString("Type");		
 		if(value.equals("android"))
 		{
+			System.out.println("<6K> new AndrodiAudio !!!!!!!!!!!!!!!!");	
 			audio = new AndroidAudio(); 
 		}	
 		else if(value.equals("tinyalsa"))
@@ -47,6 +48,7 @@ public class AudioActivity extends Activity {
 		    audio = new TinyAlsaAudio(AudioActivity.this);	// 传递 content 到tinyalsa的类		
 		}
 	   
+		System.out.println("<6K> begin start Audio Record !!!!!!!!!!!!!!!!");	
 		
 		audio.start();
 		// 监听 按键信息，记录按键 并且 调用audio.stop			

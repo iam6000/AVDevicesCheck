@@ -28,6 +28,7 @@ public class manualActivity extends Activity {
 		setContentView(R.layout.manualtest);
 		
 		initUIButton();
+		System.out.println("Begin open ManualView !!!!!!!!!!!!!!!!");
 		ManualViewListener();
 	}
 	

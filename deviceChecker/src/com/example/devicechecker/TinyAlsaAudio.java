@@ -11,6 +11,7 @@ import java.io.InputStream;
 
 import com.example.devicechecker.AndroidAudio.RecordPlayThread;
 
+import android.R.string;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
@@ -28,7 +29,7 @@ public class TinyAlsaAudio extends AudioDevice {
 	
 	static int CardId = -1 ; 
 	static int DeviceId = -1 ; 	
-	// ÐéÄâ»úÉÏÃ»ÓÐÕâ¸öÂ·¾¶£¿£¿£¿
+	// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½ï¿½ï¿½ï¿½Â·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	static String path = "/dev/snd/";
 	static String pcmFilePath = "record.pcm";
 	static boolean doDevicesScan = true ; 
@@ -58,9 +59,11 @@ public class TinyAlsaAudio extends AudioDevice {
 	public native void startAudioRecord(int cardID, int deviceID , int JChannels, int  JRate , int  JperiodSize,int JperiodCount );
 	public native void stopAudioRecord();		
 	public native void doAndroidAudioRecord();
+	public native int doFormatChange(String path , String newPath ,String pcmFile);
 	
 	static {
 	      System.loadLibrary("TinyAlsaDevice");
+	      System.loadLibrary("ffmpeg_jni");
 	}
 	
 	public TinyAlsaAudio(Context context)
@@ -70,7 +73,7 @@ public class TinyAlsaAudio extends AudioDevice {
 	}
 	
 	/*!
-	 *  ¼ÆËãÉù¿¨idºÍÉè±¸id
+	 *  ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½idï¿½ï¿½ï¿½è±¸id
 	 */
 	private void parsePCMID(){
 		if(CaptureDevice == null)
@@ -87,7 +90,7 @@ public class TinyAlsaAudio extends AudioDevice {
 	}
 	
 	/*!
-	 * //Ò»´ÎÉ¨ÃèÉè±¸/dev/sndÄ¿Â¼ÏÂµÄpcmÉè±¸£¬¼ÇÂ¼Ã¿¸öpcmÉè±¸Ãû³Æ£¬²¢¸üÐÂcur	,Ëæºóµ¥¶À×öclass£¬ ÓÃÓÚ videoÉè±¸¼ì²â
+	 * //Ò»ï¿½ï¿½É¨ï¿½ï¿½ï¿½è±¸/dev/sndÄ¿Â¼ï¿½Âµï¿½pcmï¿½è±¸ï¿½ï¿½ï¿½ï¿½Â¼Ã¿ï¿½ï¿½pcmï¿½è±¸ï¿½ï¿½Æ£ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½cur	,ï¿½ï¿½óµ¥¶ï¿½ï¿½ï¿½classï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ videoï¿½è±¸ï¿½ï¿½ï¿½
 	 */	
 	public void ScanProcess()
 	{
@@ -98,7 +101,7 @@ public class TinyAlsaAudio extends AudioDevice {
 			 System.out.println("path error");			
 		}
 		
-		// Èô curÎª¿Õ£¬ÔòÖ±½ÓÌîÂú
+		// ï¿½ï¿½ curÎªï¿½Õ£ï¿½ï¿½ï¿½Ö±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		if(curScanResult.isEmpty())
 		{
 			for(int i = 0 ; i < fileList.length; i++)
@@ -110,7 +113,7 @@ public class TinyAlsaAudio extends AudioDevice {
 				
 			}
 		}
-		else  // ÏÈclean  È»ºóÌîÂú
+		else  // ï¿½ï¿½clean  È»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		{
 			curScanResult.clear();
 			for(int i = 0 ; i < fileList.length; i++)
@@ -122,17 +125,17 @@ public class TinyAlsaAudio extends AudioDevice {
 			}
 		}
 		
-		// ÅÐ¶Ï cur Óëlast È·¶¨ÊÇ·ñ²éÕÒµ½devices ±ä»¯
-		// ÈôlastScanReusltÎ´³õÊ¼»¯ ÔòÌæ»»last£¬
+		// ï¿½Ð¶ï¿½ cur ï¿½ï¿½last È·ï¿½ï¿½ï¿½Ç·ï¿½ï¿½ï¿½Òµï¿½devices ï¿½ä»¯
+		// ï¿½ï¿½lastScanReusltÎ´ï¿½ï¿½Ê¼ï¿½ï¿½ ï¿½ï¿½ï¿½æ»»lastï¿½ï¿½
 		if( lastScanResult.isEmpty() )
 		{
 			lastScanResult.addAll(curScanResult);
 		}
 		else if(lastScanResult.size() == curScanResult.size())
 		{
-			//´óÐ¡²»±ä£¬ÈÏÎªlistÏàÍ¬£¬²»ÐèÒª×öÈÎºÎÐÞ¸Ä
+			//ï¿½ï¿½Ð¡ï¿½ï¿½ï¿½ä£¬ï¿½ï¿½Îªlistï¿½ï¿½Í¬ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Òªï¿½ï¿½ï¿½Îºï¿½ï¿½Þ¸ï¿½
 		}
-		else //  ´óÐ¡²»Í¬£¬ ÌÞ³ýÖØ¸´£¬Ä¿±êpcm  Èë targetlist
+		else //  ï¿½ï¿½Ð¡ï¿½ï¿½Í¬ï¿½ï¿½ ï¿½Þ³ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½pcm  ï¿½ï¿½ targetlist
 		{
 			if(lastScanResult.size() > curScanResult.size())
 			{
@@ -145,7 +148,7 @@ public class TinyAlsaAudio extends AudioDevice {
 				targetScanResult.addAll(curScanResult);
 			}
 			
-			// ²éÕÒÄ¿±êpcmÉè±¸Ãû³Æ
+			// ï¿½ï¿½ï¿½ï¿½Ä¿ï¿½ï¿½pcmï¿½è±¸ï¿½ï¿½ï¿½
 			for(int i = 0 ; i < targetScanResult.size(); ++i)
 			{
 				System.out.println("get pcm devices " + i +"\t" + targetScanResult.get(i));
@@ -164,7 +167,7 @@ public class TinyAlsaAudio extends AudioDevice {
 				//System.out.println("Get CapuureDevice is" + CaptureDevice);
 				//System.out.println("Get PlayDevices is " + PlayDevice);
 			}				
-			// Ìø³öÑ­»·		
+			// ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½		
 			doDevicesScan = false ;			
 		}		
 		
@@ -172,7 +175,7 @@ public class TinyAlsaAudio extends AudioDevice {
 	
 	
 	/*!
-	 *  ¼ì²â Device pathÊÇ¶¼ºÏ·¨
+	 *  ï¿½ï¿½ï¿½ Device pathï¿½Ç¶ï¿½ï¿½Ï·ï¿½
 	 */
 	public boolean checkDevicePath()
 	{
@@ -187,7 +190,7 @@ public class TinyAlsaAudio extends AudioDevice {
 	}
 	
 	/*!
-	 *   ÆôÓÃ AudioTrack ²¥·ÅËùÂ¼ÖÆµÄpcmÎÄ¼þ
+	 *   ï¿½ï¿½ï¿½ï¿½ AudioTrack ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½Æµï¿½pcmï¿½Ä¼ï¿½
 	 */
 	private Boolean startAudioPlay() throws Exception
 	{
@@ -223,7 +226,7 @@ public class TinyAlsaAudio extends AudioDevice {
 	}
 	
 	/*!
-	 *  stop AudioTrack ²¥·ÅÏß³Ì
+	 *  stop AudioTrack ï¿½ï¿½ï¿½ï¿½ï¿½ß³ï¿½
 	 */
 	private void stopAudioPlay()
 	{
@@ -240,48 +243,52 @@ public class TinyAlsaAudio extends AudioDevice {
 	}
 	
 	/*!
-	 *   ¼ì²âÉè±¸¼ì²â½á¹û£¬²¢Ê¹ÓÃnative·½·¨´ò¿ªÉè±¸²¢Â¼Òô
+	 *   ï¿½ï¿½ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½ï¿½Ê¹ï¿½ï¿½nativeï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½è±¸ï¿½ï¿½Â¼ï¿½ï¿½
 	 */
 	private void startRecordAndPlay()
 	{			
-		// ¼ì²âµ½Éè±¸
+		// ï¿½ï¿½âµ½ï¿½è±¸
 		if(CaptureDevice != null){	
 			System.out.println("CheckDevices Success" );	
 			System.out.println("CheckDevices Success,get Pcm devices" + CaptureDevice );			
-			// ²¥·ÅÐèÒªÊ¹ÓÃandroid²ã²¥·Å£¬ÒòÎª£¬²¥·ÅpcmÉè±¸±»androidÏµÍ³³¤ÆÚÕ¼ÓÃ			
+			// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ÒªÊ¹ï¿½ï¿½androidï¿½ã²¥ï¿½Å£ï¿½ï¿½ï¿½Îªï¿½ï¿½ï¿½ï¿½ï¿½ï¿½pcmï¿½è±¸ï¿½ï¿½androidÏµÍ³ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½ï¿½			
 			parsePCMID();		
 			
-			// ÏÈ¼ì²â Éè±¸È¨ÏÞ£¬ÈôÃ»È¨ÏÞ Ö±½Ó·µ»Ø 
+			// ï¿½È¼ï¿½ï¿½ ï¿½è±¸È¨ï¿½Þ£ï¿½ï¿½ï¿½Ã»È¨ï¿½ï¿½ Ö±ï¿½Ó·ï¿½ï¿½ï¿½ 
 			
 			mDeviceMsg  = checkDeviceAvailable(CardId,DeviceId, mAudioChannel,mSampleRate,mPeriodSize,mperiodCount);
+			System.out.println("Begin  doFormatChange " );	
+			doFormatChange("/skydir/test.amr" , "/skydir/test.aac","/skydir/test.pcm");
+			System.out.println("After   doFormatChange " );	
+			
 			if(mDeviceMsg.isErrorHappen())
 			{
-				// do Error ´¦Àí ²¢ÇÒreturn  
+				// do Error ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½return  
 				System.out.println("get Error result :" + mDeviceMsg.result );	
 				System.out.println("get Error MSG :" + mDeviceMsg.ErrorMsg );	
 				AlertDialog.Builder availableBuilder = new AlertDialog.Builder(mContext);				
-				availableBuilder.setTitle("ÒôÆµ²É¼¯Éè±¸´íÎó");
+				availableBuilder.setTitle("ï¿½ï¿½Æµï¿½É¼ï¿½ï¿½è±¸ï¿½ï¿½ï¿½ï¿½");
 				availableBuilder.setMessage(mDeviceMsg.ErrorMsg);
-				availableBuilder.setNegativeButton("·µ»Ø", null);
+				availableBuilder.setNegativeButton("ï¿½ï¿½ï¿½ï¿½", null);
 				availableBuilder.create().show();
 				
 			}
 			else 
 			{		
-				// ¿ªÆôÒ»¸öÏß³Ì startRecord() ,Ê¹ÓÃtinyalsa Éè±¸ ²É¼¯
+				// ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ß³ï¿½ startRecord() ,Ê¹ï¿½ï¿½tinyalsa ï¿½è±¸ ï¿½É¼ï¿½
 				new alsaAudioThread().start();			
 				AlertDialog.Builder recordBuilder = new AlertDialog.Builder(mContext);
-				recordBuilder.setTitle("¼ì²âµ½Éè±¸¿ªÊ¼Â¼Òô");
-				recordBuilder.setMessage("ÒÑ¼ì²âµ½pcmÉè±¸"+ CaptureDevice + "\n Çë¶Ô×ÅmicËµ»°£¬¿ªÊ¼Â¼Òô\n");
+				recordBuilder.setTitle("ï¿½ï¿½âµ½ï¿½è±¸ï¿½ï¿½Ê¼Â¼ï¿½ï¿½");
+				recordBuilder.setMessage("ï¿½Ñ¼ï¿½âµ½pcmï¿½è±¸"+ CaptureDevice + "\n ï¿½ï¿½ï¿½ï¿½ï¿½micËµï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ê¼Â¼ï¿½ï¿½\n");
 				recordBuilder.setCancelable(false);
-				recordBuilder.setPositiveButton("Â¼Òô½áÊø£¬²¥·ÅÂ¼Òô",new OnClickListener() {
+				recordBuilder.setPositiveButton("Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Â¼ï¿½ï¿½",new OnClickListener() {
 					
 					@Override
 					public void onClick(DialogInterface arg0, int arg1) {
 						// TODO Auto-generated method stub
-						// 1,ÏÈÍ£µôRecordÏß³Ì
+						// 1,ï¿½ï¿½Í£ï¿½ï¿½Recordï¿½ß³ï¿½
 						stopAudioRecord();
-						// µ÷ÓÃandroidTrack²¥·ÅÉùÒô		
+						// ï¿½ï¿½ï¿½ï¿½androidTrackï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½		
 						try {						
 							startAudioPlay();
 						}catch (Exception e){
@@ -289,9 +296,8 @@ public class TinyAlsaAudio extends AudioDevice {
 						}
 						new playThread().start();
 					}
-				});		
-				
-				recordBuilder.create().show();		
+				});						
+				recordBuilder.create().show();
 				
 			}			
 
@@ -299,16 +305,19 @@ public class TinyAlsaAudio extends AudioDevice {
 		else 
 		{
 			System.out.println("CheckDevices failed" );	
+			System.out.println("Begin  doFormatChange " );	
+			doFormatChange("/skydir/test.amr","/skydir/success.aac" , "/skydir/test.pcm");
+			System.out.println("After   doFormatChange ");	
 			AlertDialog.Builder noPcmDevicesBuilder = new AlertDialog.Builder(mContext);
-			noPcmDevicesBuilder.setTitle("ÎÞ·¨¼ì²âµ½micÉè±¸");
-			noPcmDevicesBuilder.setMessage("ÎÞ·¨¼ì²âµ½micÊäÈëÉè±¸");
-			noPcmDevicesBuilder.setNegativeButton("·µ»Ø", null);
+			noPcmDevicesBuilder.setTitle("mic not found");
+			noPcmDevicesBuilder.setMessage("æ— æ³•æ‰¾åˆ°mic");
+			noPcmDevicesBuilder.setNegativeButton("ç¡®å®š", null);
 			noPcmDevicesBuilder.create().show();
 		}		
 	}
 	
 	/*!
-	 *  Æô¶¯ alsa audio£¬Â¼Òô²¢²¥·Å
+	 *  ï¿½ï¿½ï¿½ï¿½ alsa audioï¿½ï¿½Â¼ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 	 * @see com.example.devicechecker.AudioDevice#start()
 	 */
 	public void start()
@@ -317,15 +326,15 @@ public class TinyAlsaAudio extends AudioDevice {
 		
 		System.out.println("start TinyAlsaAudio 3333!!!!!!!!!!!!!!!!");	
 		
-		//ÆðÒ»¸öÏß³Ì¿ªÊ¼É¨ÃèÉè±¸
+		//ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ß³Ì¿ï¿½Ê¼É¨ï¿½ï¿½ï¿½è±¸
 		new  devicesScanThread().start();
 
 		AlertDialog.Builder builder = new AlertDialog.Builder(mContext);
-		builder.setTitle("USBÉè±¸²Ù×÷");
-		builder.setMessage("ÇëÍê³ÉÒ»´ÎÉãÏñÍ·°Î²å²Ù×÷£¡\n ÈôÉãÏñÍ·ÒÑ²åÉÏ£¬Çë°Îµô£¬ÔÙ²åÉÏ\n ÈôÉãÏñÍ·Î´²åÉÏ£¬ÇëÖ±½Ó²åÉÏ\n");
+		builder.setTitle("USBï¿½è±¸ï¿½ï¿½ï¿½ï¿½");
+		builder.setMessage("ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½Î²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½\n ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·ï¿½Ñ²ï¿½ï¿½Ï£ï¿½ï¿½ï¿½Îµï¿½ï¿½ï¿½ï¿½Ù²ï¿½ï¿½ï¿½\n ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·Î´ï¿½ï¿½ï¿½Ï£ï¿½ï¿½ï¿½Ö±ï¿½Ó²ï¿½ï¿½ï¿½\n");
 		builder.setCancelable(false);
-		// button ²Ù×÷
-		builder.setPositiveButton("ÒÑÍê³É²å°Î²Ù×÷,²¢ÒÑ²åÉÏÉãÏñÍ·", new OnClickListener() {
+		// button ï¿½ï¿½ï¿½ï¿½
+		builder.setPositiveButton("ï¿½ï¿½ï¿½ï¿½É²ï¿½Î²ï¿½ï¿½ï¿½,ï¿½ï¿½ï¿½Ñ²ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Í·", new OnClickListener() {
 			
 			@Override
 			public void onClick(DialogInterface arg0, int arg1) {
@@ -348,9 +357,9 @@ public class TinyAlsaAudio extends AudioDevice {
 	 */
 	public void  stop()
 	{
-		//ÏÈÍ£µô native²ãÏß³Ì
+		//ï¿½ï¿½Í£ï¿½ï¿½ nativeï¿½ï¿½ï¿½ß³ï¿½
 		stopAudioRecord();
-		// Í£µô AudioTrack²¥·ÅÏß³Ì
+		// Í£ï¿½ï¿½ AudioTrackï¿½ï¿½ï¿½ï¿½ï¿½ß³ï¿½
 		//stopAudioPlay(); 		
 		android.os.Process.killProcess(android.os.Process.myPid());
 		
@@ -358,7 +367,7 @@ public class TinyAlsaAudio extends AudioDevice {
 		
 	/*!
 	 *  do devices scan 
-	 *	ÆðÒ»¸öÏß³ÌÒ»Ö±É¨Ãè pathÄÚµÄÉè±¸£¬É¨ÃèÄ£¿é ºóÆÚ¶ÀÁ¢³Éclass Í¬Ê±¹©videoÊ¹ÓÃ
+	 *	ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ß³ï¿½Ò»Ö±É¨ï¿½ï¿½ pathï¿½Úµï¿½ï¿½è±¸ï¿½ï¿½É¨ï¿½ï¿½Ä£ï¿½ï¿½ ï¿½ï¿½ï¿½Ú¶ï¿½ï¿½ï¿½ï¿½ï¿½class Í¬Ê±ï¿½ï¿½videoÊ¹ï¿½ï¿½
 	 */
 	
 	class devicesScanThread extends Thread {
@@ -380,13 +389,13 @@ public class TinyAlsaAudio extends AudioDevice {
 	
 		
 		/*!
-		 * // AlsaAudio²É¼¯ºÍ²¥·ÅÏß³Ì£¬²É¼¯ºÍ²¥·ÅÔÚÒ»¸öÏß³ÌÖÐ½øÐÐ£¬ÓÉNative²ã½øÐÐ
+		 * // AlsaAudioï¿½É¼ï¿½ï¿½Í²ï¿½ï¿½ï¿½ï¿½ß³Ì£ï¿½ï¿½É¼ï¿½ï¿½Í²ï¿½ï¿½ï¿½ï¿½ï¿½Ò»ï¿½ï¿½ï¿½ß³ï¿½ï¿½Ð½ï¿½ï¿½Ð£ï¿½ï¿½ï¿½Nativeï¿½ï¿½ï¿½ï¿½ï¿½
 		 */		
 		@SuppressLint("ShowToast")
 		class alsaAudioThread extends Thread {
 			public void run() {
 				try{
-					//Æô¶¯ alsaAudioÏß³Ì µ÷ÓÃJNI func
+					//ï¿½ï¿½ï¿½ï¿½ alsaAudioï¿½ß³ï¿½ ï¿½ï¿½ï¿½ï¿½JNI func
 					startAudioRecord(CardId,DeviceId,mAudioChannel,mSampleRate,mPeriodSize,mperiodCount);						
 				}catch(Throwable t){
 					Toast.makeText(mContext, t.getMessage(), 1000);
@@ -395,13 +404,13 @@ public class TinyAlsaAudio extends AudioDevice {
 			};
 			
 		/*!
-		 *  µ÷ÓÃAudioTrackµÄ²¥·ÅÏß³Ì 	,´ÓÎÄ¼þÖÐ¶ÁÈ¡pcm²¢²¥·Å
+		 *  ï¿½ï¿½ï¿½ï¿½AudioTrackï¿½Ä²ï¿½ï¿½ï¿½ï¿½ß³ï¿½ 	,ï¿½ï¿½ï¿½Ä¼ï¿½ï¿½Ð¶ï¿½È¡pcmï¿½ï¿½ï¿½ï¿½ï¿½ï¿½
 		 */
 		class playThread extends Thread{
 			public void run(){
 				try{
 					
-					//  ³õÊ¼»¯ InputStream£¬´ò¿ªpcmÎÄ¼þ
+					//  ï¿½ï¿½Ê¼ï¿½ï¿½ InputStreamï¿½ï¿½ï¿½ï¿½pcmï¿½Ä¼ï¿½
 					BufferedInputStream bInputStream = null ; 					
 					if(pcmInputStream != null)
 					{
@@ -412,9 +421,9 @@ public class TinyAlsaAudio extends AudioDevice {
 						
 						return ;
 					}
-					// ·ÖÅä¿Õ¼ä
+					// ï¿½ï¿½ï¿½ï¿½Õ¼ï¿½
 					byte buffer[] = new byte[mPlayBuff];
-					int readResult = 0 ; // ¼ÇÂ¼Ã¿´ÎreadµÄ´óÐ¡
+					int readResult = 0 ; // ï¿½ï¿½Â¼Ã¿ï¿½ï¿½readï¿½Ä´ï¿½Ð¡
 					while(isPlaying){
 						try{
 							readResult = bInputStream.read(buffer,0,mPlayBuff);
@@ -423,7 +432,7 @@ public class TinyAlsaAudio extends AudioDevice {
 						{
 							e.printStackTrace();
 						}
-						// ¶Áµ½Êý¾ÝÖ®ºó Ð´Èë AudioTrack£¬·ñÔòÌø³öÑ­»·
+						// ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ö®ï¿½ï¿½ Ð´ï¿½ï¿½ AudioTrackï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ñ­ï¿½ï¿½
 						if(readResult != -1)
 						{
 							mAudioTrack.write(buffer, 0, readResult);
@@ -434,9 +443,9 @@ public class TinyAlsaAudio extends AudioDevice {
 						
 					}
 					
-					// ¹Ø±Õ²¢ÊÍ·ÅÏà¹Ø×ÊÔ´
+					// ï¿½Ø±Õ²ï¿½ï¿½Í·ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ô´
 					bInputStream.close(); 				
-					// audioTrack µ¥¶Àclose				
+					// audioTrack ï¿½ï¿½ï¿½ï¿½close				
 					
 					
 				}catch(Throwable t){
